@@ -39,7 +39,7 @@ The snippet below estimates the Fréchet distance between the polygonal curves `
 >>> p = np.array([[1, 2], [3, 4]])
 >>> q = np.array([[2, 1], [3, 3], [5, 5]])
 
->>> frechet_distance(p, q, metric=lambda a, b: np.hypot(a[0] - b[:, 0], a[1] - b[:, 1]))
+>>> frechet_distance(p, q, metric=lambda a, b: np.hypot(a[..., 0] - b[..., 0], a[..., 1] - b[..., 1]))
 2.23606797749979
 ```
 

@@ -29,6 +29,29 @@ def generate_trajectory(n, *, rng):
 @pytest.mark.parametrize(
     "variant",
     [
+        vanilla,
+        no_recursion,
+        branchless,
+        compiled,
+        vectorized,
+        linear_memory,
+        accumulate,
+        reduce_accumulate,
+    ],
+)
+def test_simple_example(variant):
+    p = np.array([[1, 2], [3, 4]])
+    q = np.array([[2, 1], [3, 3], [5, 5]])
+
+    d = variant.frechet_distance(
+        p, q, metric=lambda a, b: np.hypot(a[..., 0] - b[..., 0], a[..., 1] - b[..., 1])
+    )
+    assert d == pytest.approx(np.sqrt(5.0))
+
+
+@pytest.mark.parametrize(
+    "variant",
+    [
         no_recursion,
         branchless,
         compiled,
