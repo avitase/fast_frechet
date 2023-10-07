@@ -1,5 +1,28 @@
-It has been used for simplification \citep{agarwal05,bereg08}, clustering \citep{buchin11}, and map-matching \citep{alt03,driemel12b}.
-The Fr\'echet distance also has applications in matching biological sequences \citep{wylie12}, analysing tracking data \citep{brakatsoulas05,buchin11}, and matching coastline data \citep{mascret06}.
+taken from \citep{bereg08}:
+Fr\'echet distance was first defined by Maurice Fr\'echet in 1906 \citep{frechet06}.
+While known as a famous distance measure in the field of mathematics (more specifically, abstract spaces), it was Alt and Godau who first applied it in measuring the similarity of polygonal curves in early 1990s \citep{alt92a,alt92b}.
+In 1994, Eiter and Mannila defined the discrete Fr\'echet distance between two polygonal chains A and B (in any fixed dimensions) \citep{eiter94}.
+Recently, Jiang, Xu and Zhu applied the discrete Fr\'echet distance in aligning the backbones of proteins (which is called the protein structure-structure alignment problem) \citep{jiang08}.
+In fact, in this application the discrete Fr\'echet distance makes more sense as the backbone of a protein is simply a polygonal chain in 3D, with each vertex being the alpha-carbon atom of a residue.
+So if the (continuous) Fr\'echet distance is realized by an alpha-carbon atom and some other point which does not represent an atom, it is not meaningful biologically.
+Jiang, et al.\ showed that given two planar polygonal chains the minimum discrete Fr\'echet distance between them, under both translation and rotation, can be computed in polynomial time.
+They also applied some ideas therein to design an efficient heuristic for the original protein structure-structure alignment problem in 3D.
+
+taken from \citep{buchin14}: It has been used for simplification \citep{agarwal05,bereg08}, clustering \citep{buchin11}, and map-matching \citep{alt03,driemel12}.
+The Fr\'echet distance also has applications in matching biological sequences \citep{wylie12}, analysing tracking data \citep{brakatsoulas05,buchin08}, and matching coastline data \citep{mascret06}.
+
+taken from \citep{su20}: The time complexity of Fréchet distance is $\mathcal{O}(mn)$ \citep{eiter94}.
+
+\citep{buchin14}: We show that, in the general case, the problem of computing the shortcut Fr\'echet distance is NP-hard.
+This is the first hardness result for a variant of the Fr\'echet distance between two polygonal curves in the plane.
+
+\citep{agarwal14}: Computing the discrete Fr\'echet distance in subquadratic time
+
+\citep{aronov06}: Approximation of discrete Fr\'echet distance? Is \citep{avraham14} related?
+
+\citep{bringmann14}: Fr\'echet distance has no strongly subquadratic algorithm unless SETH fails
+
+\citep{gudmundsson18}: Approximation for long edges
 
 \lstset{texcl=true,basicstyle=\small\sf,commentstyle=\small\rm,mathescape=true,escapeinside={(*}{*)}}
 \begin{lstlisting}
