@@ -16,7 +16,7 @@ taken from \citep{su20}: The time complexity of Fréchet distance is $\mathcal{O
 \citep{buchin14}: We show that, in the general case, the problem of computing the shortcut Fr\'echet distance is NP-hard.
 This is the first hardness result for a variant of the Fr\'echet distance between two polygonal curves in the plane.
 
-\citep{agarwal14}: Computing the discrete Fr\'echet distance in subquadratic time
+\citep{agarwal14}: Computing the discrete Fr\'echet distance in subquadratic time. ($\overset{?}{\sim}$ linear search faster than more educated approaches on modern hardware if input data is small)
 
 \citep{aronov06}: Approximation of discrete Fr\'echet distance. Is \citep{avraham14} related?
 
@@ -31,6 +31,16 @@ discrete Fr\'echet distance for handwriting recognition: \citep{sriraghavendra07
 \citep{zhu07}: Following the recent work of \citep{jiang08}, we investigate the protein local structural alignment problem using bounded discrete Fr\'echet distance
 
 \citep{alt03b} showed that the Hausdorff distance and the Fr\'echet distance are the same for a pair of closed convex curves.
+
+taken from \citep{ahn10}: In dimension $d$, given two polygonal curves with $n$ and $m$ vertices, respectively, there is a dynamic programming algorithm that computes the discrete Fr\'echet distance between them in $\mathcal{O}(dmn)$ time \citep{eiter94}.
+Later, Aronov et al.\ presented efficient approximation algorithms for computing
+the discrete Fr\'echet distance of two natural classes of curves: $\kappa$-bounded curves and backbone curves \citep{aronov06}.
+They also proposed a pseudo-output-sensitive algorithm for computing the discrete Fr\'echet distance exactly.
+
+\citep{ahn10}'s algorithm is based on a decision algorithm where the algorithm iterated in the inner-loop is a close adaptation of \citep{eiter94}.
+They already use a matrix-formulation w/o recursion and they have eliminated most branches.
+
+$d=2$ $\rightarrow$ \textit{planar case}
 
 \lstset{texcl=true,basicstyle=\small\sf,commentstyle=\small\rm,mathescape=true,escapeinside={(*}{*)}}
 \begin{lstlisting}
