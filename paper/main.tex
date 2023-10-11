@@ -45,7 +45,7 @@ $d=2$ $\rightarrow$ \textit{planar case}
 \begin{algorithm}
     \caption{Vanilla}
     \begin{algorithmic}[1]
-        \Function{fr\'echet\_distance}{$p$: $\mathbb{R}^{P \times d}$, $q$: $\mathbb{R}^{Q \times d}$, $f$: $\mathbb{R}^d \times \mathbb{R}^d \mapsto \mathbb{R}$}
+        \Function{fr\'echet\_distance}{$p$: $\mathbb{R}^{P \times D}$, $q$: $\mathbb{R}^{Q \times D}$, $f$: $\mathbb{R}^D \times \mathbb{R}^D \mapsto \mathbb{R}$}
             \State $ca$: $\mathbb{R}^{P \times Q}$ $\gets -1$
             \Statex
             \Function{c}{i: $\mathbb{N}$, j: $\mathbb{N}$} \Comment{Capture $p$, $q$, $ca$, and $f$}
@@ -61,7 +61,7 @@ $d=2$ $\rightarrow$ \textit{planar case}
                 \ElsIf{$i = 0 \;\land\; j > 0$}
                     \State $ca_{ij} \gets \max\{\Call{c}{0, j - 1},\, d\}$
                 \Else
-                    \State $ca_{ij} \gets \max\{\min\{\Call{c}{i - 1, j},\, \Call{c}{i - 1, j - 1},\, \Call{c}{i, j - 1}\},\, d\}$
+                    \State $ca_{ij} \gets \max\{\min\{\Call{c}{i - 1,\, j},\, \Call{c}{i - 1, j - 1},\, \Call{c}{i, j - 1}\},\, d\}$
                 \EndIf
                 \Statex
                 \State \Return $ca_{ij}$
@@ -75,7 +75,7 @@ $d=2$ $\rightarrow$ \textit{planar case}
 \begin{algorithm}
     \caption{No recursion}
     \begin{algorithmic}[1]
-        \Function{fr\'echet\_distance}{$p$: $\mathbb{R}^{P \times d}$, $q$: $\mathbb{R}^{Q \times d}$, $f$: $\mathbb{R}^d \times \mathbb{R}^d \mapsto \mathbb{R}$}
+        \Function{fr\'echet\_distance}{$p$: $\mathbb{R}^{P \times D}$, $q$: $\mathbb{R}^{Q \times D}$, $f$: $\mathbb{R}^D \times \mathbb{R}^D \mapsto \mathbb{R}$}
             \State $ca$: $\mathbb{R}^{P \times Q}$ $\gets -1$
             \Statex
             \For{$i \gets 1,P$}
@@ -88,7 +88,7 @@ $d=2$ $\rightarrow$ \textit{planar case}
                     \ElsIf{$i = 0 \;\land\; j > 0$}
                         \State $ca_{ij} \gets \max\{\Call{c}{0, j - 1},\, d\}$
                     \Else
-                        \State $ca_{ij} \gets \max\{\min\{\Call{c}{i - 1, j},\, \Call{c}{i - 1, j - 1},\, \Call{c}{i, j - 1}\},\, d\}$
+                        \State $ca_{ij} \gets \max\{\min\{\Call{c}{i - 1,\, j},\, \Call{c}{i - 1, j - 1},\, \Call{c}{i, j - 1}\},\, d\}$
                     \EndIf
                 \EndFor
             \EndFor
@@ -101,20 +101,63 @@ $d=2$ $\rightarrow$ \textit{planar case}
 \begin{algorithm}
     \caption{Linear memory}
     \begin{algorithmic}[1]
-        \Function{fr\'echet\_distance}{$p$: $\mathbb{R}^{P \times d}$, $q$: $\mathbb{R}^{Q \times d}$, $f$: $\mathbb{R}^d \times \mathbb{R}^d \mapsto \mathbb{R}$}
+        \Function{fr\'echet\_distance}{$p$: $\mathbb{R}^{P \times D}$, $q$: $\mathbb{R}^{Q \times D}$, $f$: $\mathbb{R}^D \times \mathbb{R}^D \mapsto \mathbb{R}$}
             \State $d_1$: $\mathbb{R}^Q \gets$ \Call{$f$}{$p_1, q$}
-            \State $v$: $\mathbb{R}^{Q+1} \gets [\infty$, \Call{scan}{$d_1, \max$}$]$
+            \State $v\phantom{{}_1}$: $\mathbb{R}^{Q+1} \gets [\infty,\, \backslash\!\max(d_1)]$ \Comment{scan using $\max\{\bullet, \bullet\}$}
             \Statex
             \For{$i \gets 2,P$}
                 \State $d_i$: $\mathbb{R}^Q \gets$ \Call{$f$}{$p_i, q$}    
-                \State $u$: $\mathbb{R}^Q \gets \min\{ row_{1 \ldots Q}, row_{2 \ldots Q+1} \}$
+                \State $u\phantom{{}_1}$: $\mathbb{R}^Q \gets \min\{ v_{1 \ldots Q},\, v_{2 \ldots Q+1} \}$
                 \Statex
                 \For{$j \gets 1,Q$}
-                    \State $v_{j+1} \gets max\{ \min\{ v_j, u_j \},\, d_{ij} \}$
+                    \State $v_{j+1} \gets \max\{ \min\{ v_j,\, u_j \},\, d_{ij} \}$
                 \EndFor
             \EndFor
             \Statex
             \State \Return $v_{Q+1}$
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+    \caption{Scan}
+    \begin{algorithmic}[1]
+        \Function{fr\'echet\_maxmin}{$a$: $\mathbb{R}^{Q}$, $x$: $\mathbb{R}^{2 \times Q}$}
+            \State \Return $\max\{ \min\{ a,\, x_1 \},\, x_2 \}$
+        \EndFunction
+        \Statex
+        \Function{fr\'echet\_distance}{$p$: $\mathbb{R}^{P \times D}$, $q$: $\mathbb{R}^{Q \times D}$, $f$: $\mathbb{R}^D \times \mathbb{R}^D \mapsto \mathbb{R}$}
+            \State $d_1$: $\mathbb{R}^Q \gets$ \Call{$f$}{$p_1, q$}
+            \State $v\phantom{{}_1}$: $\mathbb{R}^{Q+1} \gets [\infty,\, \backslash\!\max(d_1)]$ \Comment{scan using $\max\{\bullet, \bullet\}$}
+            \Statex
+            \For{$i \gets 2,P$}
+                \State $d_i$: $\mathbb{R}^Q \gets$ \Call{$f$}{$p_i, q$}    
+                \State $u\phantom{{}_1}$: $\mathbb{R}^Q \gets \min\{ v_{1 \ldots Q},\, v_{2 \ldots Q+1} \}$
+                \Statex
+                \State $v \gets \backslash$\Call{fr\'echet\_maxmin}{$\infty,\, [u, d_i]^\top $} \Comment{scan using \Call{fr\'echet\_maxmin}{}}
+            \EndFor
+            \Statex
+            \State \Return $v_{Q+1}$
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+    \caption{Fold/Scan}
+    \begin{algorithmic}[1]
+        \Function{fr\'echet\_maxmin}{$a$: $\mathbb{R}^{Q}$, $x$: $\mathbb{R}^{2 \times Q}$}
+            \State \Return $\max\{ \min\{ a,\, x_1 \},\, x_2 \}$
+        \EndFunction
+        \Statex
+        \Function{fr\'echet\_next}{$a$: $\mathbb{R}^{Q+1}$, $x$: $\mathbb{R}^{Q}$}
+            \State $u$: $\mathbb{R}^Q \gets \min\{ a_{1 \ldots Q},\, a_{2 \ldots Q+1} \}$
+            \State \Return $\max\{ \min\{ a,\, x_1 \},\, x_2 \}$
+        \EndFunction
+        \Statex
+        \Function{fr\'echet\_distance}{$p$: $\mathbb{R}^{P \times D}$, $q$: $\mathbb{R}^{Q \times D}$, $f$: $\mathbb{R}^D \times \mathbb{R}^D \mapsto \mathbb{R}$}
+            \State $d$: $\mathbb{R}^{P \times Q} \gets [\Call{\ensuremath{f}}{q, p_1}, \ldots, \Call{\ensuremath{f}}{q, p_P}]^\top$ \Comment{evaluate lazily}
+            \State $v$: $\mathbb{R}^{Q+1} \gets [\infty,\, \backslash\!\max(d_1)]$ \Comment{scan using $\max\{\bullet, \bullet\}$}
+            \State \Return /\Call{fr\'echet\_next}{$v, d$}${}_{Q+1}$ \Comment{fold using \Call{fr\'echet\_next}{}}
         \EndFunction
     \end{algorithmic}
 \end{algorithm}
