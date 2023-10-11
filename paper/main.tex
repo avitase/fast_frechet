@@ -42,48 +42,81 @@ They already use a matrix-formulation w/o recursion and they have eliminated mos
 
 $d=2$ $\rightarrow$ \textit{planar case}
 
-\lstset{texcl=true,basicstyle=\small\sf,commentstyle=\small\rm,mathescape=true,escapeinside={(*}{*)}}
-\begin{lstlisting}
-begin
-  for $i:=1$ to $10$ step $1$ do
-      expt($2,i$);  
-      newline() od                (*\textrm{Comments will be set flush to the right margin}*)
-where
-proc expt($x,n$) $\equiv$
-  $z:=1$;
-  do if $n=0$ then exit fi;
-     do if odd($n$) then exit fi;                 
-        comment: (*\textrm{This is a comment statement;}*)
-        $n:=n/2$; $x:=x*x$ od;
-     { $n>0$ };
-     $n:=n-1$; $z:=z*x$ od;
-  print($z$). 
-end
-\end{lstlisting}
+\begin{algorithm}
+    \caption{Vanilla}
+    \begin{algorithmic}[1]
+        \Function{fr\'echet\_distance}{$p$: $\mathbb{R}^{P \times d}$, $q$: $\mathbb{R}^{Q \times d}$, $f$: $\mathbb{R}^d \times \mathbb{R}^d \mapsto \mathbb{R}$}
+            \State $ca$: $\mathbb{R}^{P \times Q}$ $\gets -1$
+            \Statex
+            \Function{c}{i: $\mathbb{N}$, j: $\mathbb{N}$} \Comment{Capture $p$, $q$, $ca$, and $f$}
+                \If{$ca_{ij} > -1$}
+                    \State \Return $ca_{ij}$
+                \EndIf
+                \Statex
+                \State $d$: $\mathbb{R}$ $\gets$ \Call{$f$}{$p_i, q_j$}
+                \If{$i = 0 \;\land\; j = 0$}
+                    \State $ca_{ij} \gets d$
+                \ElsIf{$i > 0 \;\land\; j = 0$}
+                    \State $ca_{ij} \gets \max\{\Call{c}{i - 1, 0},\, d\}$
+                \ElsIf{$i = 0 \;\land\; j > 0$}
+                    \State $ca_{ij} \gets \max\{\Call{c}{0, j - 1},\, d\}$
+                \Else
+                    \State $ca_{ij} \gets \max\{\min\{\Call{c}{i - 1, j},\, \Call{c}{i - 1, j - 1},\, \Call{c}{i, j - 1}\},\, d\}$
+                \EndIf
+                \Statex
+                \State \Return $ca_{ij}$
+            \EndFunction
+            \Statex
+            \State \Return \Call{c}{$P - 1, Q - 1$}
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
 
 \begin{algorithm}
-\caption{Calculate $y = x^n$}\label{algo1}
-\begin{algorithmic}[1]
-\Require $n \geq 0 \vee x \neq 0$
-\Ensure $y = x^n$ 
-\State $y \Leftarrow 1$
-\If{$n < 0$}\label{algln2}
-        \State $X \Leftarrow 1 / x$
-        \State $N \Leftarrow -n$
-\Else
-        \State $X \Leftarrow x$
-        \State $N \Leftarrow n$
-\EndIf
-\While{$N \neq 0$}
-        \If{$N$ is even}
-            \State $X \Leftarrow X \times X$
-            \State $N \Leftarrow N / 2$
-        \Else[$N$ is odd]
-            \State $y \Leftarrow y \times X$
-            \State $N \Leftarrow N - 1$
-        \EndIf
-\EndWhile
-\end{algorithmic}
+    \caption{No recursion}
+    \begin{algorithmic}[1]
+        \Function{fr\'echet\_distance}{$p$: $\mathbb{R}^{P \times d}$, $q$: $\mathbb{R}^{Q \times d}$, $f$: $\mathbb{R}^d \times \mathbb{R}^d \mapsto \mathbb{R}$}
+            \State $ca$: $\mathbb{R}^{P \times Q}$ $\gets -1$
+            \Statex
+            \For{$i \gets 1,P$}
+                \For{$j \gets 1,Q$}
+                    \State $d$: $\mathbb{R}$ $\gets$ \Call{$f$}{$p_i, q_j$}
+                    \If{$i = 0 \;\land\; j = 0$}
+                        \State $ca_{ij} \gets d$
+                    \ElsIf{$i > 0 \;\land\; j = 0$}
+                        \State $ca_{ij} \gets \max\{\Call{c}{i - 1, 0},\, d\}$
+                    \ElsIf{$i = 0 \;\land\; j > 0$}
+                        \State $ca_{ij} \gets \max\{\Call{c}{0, j - 1},\, d\}$
+                    \Else
+                        \State $ca_{ij} \gets \max\{\min\{\Call{c}{i - 1, j},\, \Call{c}{i - 1, j - 1},\, \Call{c}{i, j - 1}\},\, d\}$
+                    \EndIf
+                \EndFor
+            \EndFor
+            \Statex
+            \State \Return $ca_{P-1,Q-1}$   
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+    \caption{Linear memory}
+    \begin{algorithmic}[1]
+        \Function{fr\'echet\_distance}{$p$: $\mathbb{R}^{P \times d}$, $q$: $\mathbb{R}^{Q \times d}$, $f$: $\mathbb{R}^d \times \mathbb{R}^d \mapsto \mathbb{R}$}
+            \State $d_1$: $\mathbb{R}^Q \gets$ \Call{$f$}{$p_1, q$}
+            \State $v$: $\mathbb{R}^{Q+1} \gets [\infty$, \Call{scan}{$d_1, \max$}$]$
+            \Statex
+            \For{$i \gets 2,P$}
+                \State $d_i$: $\mathbb{R}^Q \gets$ \Call{$f$}{$p_i, q$}    
+                \State $u$: $\mathbb{R}^Q \gets \min\{ row_{1 \ldots Q}, row_{2 \ldots Q+1} \}$
+                \Statex
+                \For{$j \gets 1,Q$}
+                    \State $v_{j+1} \gets max\{ \min\{ v_j, u_j \},\, d_{ij} \}$
+                \EndFor
+            \EndFor
+            \Statex
+            \State \Return $v_{Q+1}$
+        \EndFunction
+    \end{algorithmic}
 \end{algorithm}
 
 \backmatter
