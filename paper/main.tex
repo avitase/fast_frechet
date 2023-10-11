@@ -151,7 +151,7 @@ $d=2$ $\rightarrow$ \textit{planar case}
         \Statex
         \Function{fr\'echet\_next}{$a$: $\mathbb{R}^{Q+1}$, $x$: $\mathbb{R}^{Q}$}
             \State $u$: $\mathbb{R}^Q \gets \min\{ a_{1 \ldots Q},\, a_{2 \ldots Q+1} \}$
-            \State \Return $\max\{ \min\{ a,\, x_1 \},\, x_2 \}$
+            \State \Return $\backslash$\Call{fr\'echet\_maxmin}{$\infty,\, [u, x]^\top $} \Comment{scan using \Call{fr\'echet\_maxmin}{}}
         \EndFunction
         \Statex
         \Function{fr\'echet\_distance}{$p$: $\mathbb{R}^{P \times D}$, $q$: $\mathbb{R}^{Q \times D}$, $f$: $\mathbb{R}^D \times \mathbb{R}^D \mapsto \mathbb{R}$}
