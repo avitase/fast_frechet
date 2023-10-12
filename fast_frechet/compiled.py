@@ -6,15 +6,15 @@ import numpy as np
 
 @numba.njit
 def frechet_next(acc, d):
-    min_prev_row = np.minimum(acc[:-1], acc[1:])
+    u = np.minimum(acc[:-1], acc[1:])
 
     Q = len(d)
-    row = np.empty(Q + 1)
-    row[0] = np.inf
+    v = np.empty(Q + 1)
+    v[0] = np.inf
     for j in range(Q):
-        row[j + 1] = max(min(row[j], min_prev_row[j]), d[j])
+        v[j + 1] = max(min(v[j], u[j]), d[j])
 
-    return row
+    return v
 
 
 def frechet_distance(p, q, metric):
