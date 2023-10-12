@@ -18,7 +18,7 @@ def frechet_next(acc, d):
 
 
 def frechet_distance(p, q, metric):
-    init = np.maximum.accumulate(metric(p[0], q))
-    init = np.insert(init, 0, np.inf)
+    v = np.maximum.accumulate(metric(p[0], q))
+    v = np.insert(v, 0, np.inf)
 
-    return reduce(frechet_next, map(partial(metric, q), p[1:]), init)[-1]
+    return reduce(frechet_next, map(partial(metric, q), p[1:]), v)[-1]
