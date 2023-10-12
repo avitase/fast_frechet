@@ -17,5 +17,7 @@ from fast_frechet.levenshtein import levenshtein_distance
     ],
 )
 def test_levenshtein(p, q, d_exp):
-    d = levenshtein_distance(p, q)
-    assert d == d_exp
+    dpq = levenshtein_distance(p, q)
+    dqp = levenshtein_distance(q, p)
+    assert dpq == d_exp
+    assert dqp == d_exp
