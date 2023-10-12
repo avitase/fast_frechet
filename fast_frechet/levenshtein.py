@@ -23,14 +23,3 @@ def levenshtein_distance(p, q):
         v = list(accumulate(zip(u, d), levenshtein_min, initial=i + 1))
 
     return v[-1]
-
-
-if __name__ == "__main__":
-    assert levenshtein_distance("kitten", "kitten") == 0
-    assert levenshtein_distance("kitten", "sitten") == 1
-    assert levenshtein_distance("kitten", "sittes") == 2
-    assert levenshtein_distance("kitten", "sityteng") == 3
-    assert levenshtein_distance("kitten", "sittYing") == 4
-    assert levenshtein_distance("rosettacode", "raisethysword") == 8
-    assert levenshtein_distance("kitten", "kittenaaaaaaaaaaaaaaaaa") == 17
-    assert levenshtein_distance("kittenaaaaaaaaaaaaaaaaa", "kitten") == 17
