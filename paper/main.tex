@@ -193,6 +193,40 @@ $d=2$ $\rightarrow$ \textit{planar case}
     \end{algorithmic}
 \end{algorithm}
 
+\begin{algorithm}
+    \caption{Scan}
+    \label{alg:scan}
+    \begin{algorithmic}[1]
+        \Function{$\backslash[f: \mathcal{T}_2 \times \mathcal{T}_1 \to \mathcal{T}_2]$}{$init$: $\mathcal{T}_2$, $x$: $\mathcal{T}_1^N$} $\to \mathcal{T}_2^{N+1}$
+            \State $y$: $\mathcal{T}_2^{N+1}$
+            \State $y_1 \gets init$
+            \Statex
+            \State $t$: $\mathcal{T}_2$ $\gets init$
+            \For{$i \gets 1,N$}
+                \State $t \gets f(t, x_i)$
+                \State $y_{i+1} \gets t$
+            \EndFor
+            \Statex
+            \State \Return $y$
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+    \caption{Fold}
+    \label{alg:fold}
+    \begin{algorithmic}[1]
+        \Function{$/[f: \mathcal{T}_2 \times \mathcal{T}_1 \to \mathcal{T}_2]$}{$init$: $\mathcal{T}_2$, $x$: $\mathcal{T}_1^N$} $\to \mathcal{T}_2$
+            \State $t$: $\mathcal{T}_2$ $\gets init$
+            \For{$i \gets 1,N$}
+                \State $t \gets f(t, x_i)$
+            \EndFor
+            \Statex
+            \State \Return $t$
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+
 \backmatter
 
 \bmhead{Supplementary information}
