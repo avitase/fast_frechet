@@ -157,7 +157,7 @@ $d=2$ $\rightarrow$ \textit{planar case}
         \Function{fr\'echet\_distance}{$p$: $\mathbb{R}^{P \times D}$, $q$: $\mathbb{R}^{Q \times D}$, $f$: $\mathbb{R}^D \times \mathbb{R}^D \mapsto \mathbb{R}$} $\to \mathbb{R}$
             \State $d$: $\mathbb{R}^{P \times Q} \gets [\Call{\ensuremath{f}}{q, p_1} \, \cdots \, \Call{\ensuremath{f}}{q, p_P}]^\top$ \Comment{evaluate rows lazily}
             \State $v$: $\mathbb{R}^{Q+1} \gets \backslash\!\max(\infty, d_1)$ \Comment{scan using $\max\{\bullet, \bullet\}$}
-            \State \Return $[$/\Call{fr\'echet\_next}{$v, d$}$]_{Q+1}$ \Comment{fold using \Call{fr\'echet\_next}{}}
+            \State \Return $[$/\Call{fr\'echet\_next}{$v, d_{2 \ldots P}$}$]_{Q+1}$ \Comment{fold using \Call{fr\'echet\_next}{}}
         \EndFunction
     \end{algorithmic}
 \end{algorithm}
