@@ -16,7 +16,7 @@ taken from \citep{su20}: The time complexity of Fréchet distance is $\mathcal{O
 \citep{buchin14}: We show that, in the general case, the problem of computing the shortcut Fr\'echet distance is NP-hard.
 This is the first hardness result for a variant of the Fr\'echet distance between two polygonal curves in the plane.
 
-\citep{agarwal14}: Computing the discrete Fr\'echet distance in subquadratic time. ($\overset{?}{\sim}$ linear search faster than more educated approaches on modern hardware if input data is small)
+\citep{agarwal14}: Computing the discrete Fr\'echet distance in subquadratic time. ($\overset{?}{\sim}$ linear search faster than more educated approaches on modern hardware if input data is small). The given \textit{subquadratic} complexity is only slightly better than quadratic.
 
 \citep{aronov06}: Approximation of discrete Fr\'echet distance. Is \citep{avraham14} related?
 
@@ -40,10 +40,15 @@ They also proposed a pseudo-output-sensitive algorithm for computing the discret
 \citep{ahn10}'s algorithm is based on a decision algorithm where the algorithm iterated in the inner-loop is a close adaptation of \citep{eiter94}.
 They already use a matrix-formulation w/o recursion and they have eliminated most branches.
 
+\citep{buchin23}: TODO
+
 $d=2$ $\rightarrow$ \textit{planar case}
+
+Alg.~\ref{alg:frechet_vanilla}: speed-up by finding stopping criterion for recursion. If $d_{ij} \ge d_{\alpha\beta} \forall \alpha \le i \land \beta \le j$ recursion can stop. Problem: How to find w/o a full search. In a sense, Alg.~\ref{alg:frechet_no_recursion} solves this issue with a bottom-up approach.
 
 \begin{algorithm}
     \caption{Vanilla}
+    \label{alg:frechet_vanilla}
     \begin{algorithmic}[1]
         \Function{fr\'echet\_distance}{$p$: $\mathbb{R}^{P \times D}$, $q$: $\mathbb{R}^{Q \times D}$, $f$: $\mathbb{R}^D \times \mathbb{R}^D \mapsto \mathbb{R}$} $\to \mathbb{R}$
             \State $M$: $\mathbb{R}^{P \times Q}$ $\gets -1$
@@ -74,6 +79,7 @@ $d=2$ $\rightarrow$ \textit{planar case}
 
 \begin{algorithm}
     \caption{No recursion}
+    \label{alg:frechet_no_recursion}
     \begin{algorithmic}[1]
         \Function{fr\'echet\_distance}{$p$: $\mathbb{R}^{P \times D}$, $q$: $\mathbb{R}^{Q \times D}$, $f$: $\mathbb{R}^D \times \mathbb{R}^D \mapsto \mathbb{R}$} $\to \mathbb{R}$
             \State $M$: $\mathbb{R}^{P \times Q}$ $\gets -1$
