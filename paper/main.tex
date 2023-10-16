@@ -1,6 +1,6 @@
 taken from \citep{bereg08}:
 Fr\'echet distance was first defined by Maurice Fr\'echet in 1906 \citep{frechet06}.
-While known as a famous distance measure in the field of mathematics (more specifically, abstract spaces), it was Alt and Godau who first applied it in measuring the similarity of polygonal curves in early 1990s \citep{alt92a,alt92b}.
+While known as a famous distance measure in the field of mathematics (more specifically, abstract spaces), it was Alt and Godau who first applied it in measuring the similarity of polygonal curves in early 1990s \citep{alt92,alt95}.
 In 1994, Eiter and Mannila defined the discrete Fr\'echet distance between two polygonal chains A and B (in any fixed dimensions) \citep{eiter94}.
 Recently, Jiang, Xu and Zhu applied the discrete Fr\'echet distance in aligning the backbones of proteins (which is called the protein structure-structure alignment problem) \citep{jiang08}.
 In fact, in this application the discrete Fr\'echet distance makes more sense as the backbone of a protein is simply a polygonal chain in 3D, with each vertex being the alpha-carbon atom of a residue.
@@ -40,7 +40,13 @@ They also proposed a pseudo-output-sensitive algorithm for computing the discret
 \citep{ahn10}'s algorithm is based on a decision algorithm where the algorithm iterated in the inner-loop is a close adaptation of \citep{eiter94}.
 They already use a matrix-formulation w/o recursion and they have eliminated most branches.
 
-\citep{buchin23}: TODO
+Work on Fr\'echet distance for uncertain curves, \textbf{e.g.}\footnote{there are more articles by Buchin about this, but there are not easy to cite} \citep{buchin23}: Given an uncertain curve and a second (certain or uncertain) curve, we seek to compute the lower and upper bound Fr\'echet distance, which are the minimum and maximum Fr\'echet distance for any realisations of the curves.
+We prove that both problems are NP-hard for the Fr\'echet distance in several uncertainty models, and that the upper bound problem remains hard for the discrete Fr\'echet distance.
+In contrast, the lower bound (discrete and continuous) Fr\'echet distance can be computed in polynomial time in some models.
+Furthermore, we show that computing the expected (discrete and continuous) Fr\'echet distance is \#P-hard in some models.
+Computing the Fr\'echet distance between two precise curves can be done in near-quadratic time \citep{agarwal14,alt95,buchin17}, and assuming the strong exponential time hypothesis, it cannot be computed or even approximated well in \textbf{strongly} subquadratic time \citep{bringmann14,buchin19} $\ldots$
+
+$\ldots$ Eventhough the Fr\'echet distance can be calculated faster for several restricted versions \citep{driemel12,gudmundsson18,buchin10,maheshwari11} $\ldots$ our thing works in general and for any metric!
 
 $d=2$ $\rightarrow$ \textit{planar case}
 
