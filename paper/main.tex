@@ -138,14 +138,11 @@ Alg.~\ref{alg:frechet_vanilla}: speed-up by finding stopping criterion for recur
             \State \Return $\max\{ \min\{ a,\, x_1 \},\, x_2 \}$
         \EndFunction
         \Statex
-        \Function{fr\'echet\_distance}{$p$: $\mathbb{R}^{P \times D}$, $q$: $\mathbb{R}^{Q \times D}$, $f$: $\mathbb{R}^D \times \mathbb{R}^D \mapsto \mathbb{R}$} $\to \mathbb{R}$
-            \State $d_1$: $\mathbb{R}^Q \gets$ \Call{$f$}{$p_1, q$} \Comment{apply $f$ pointwise}
+        \Function{fr\'echet\_distance}{$d$: $\mathbb{R}^{P \times Q}$} $\to \mathbb{R}$
             \State $v\phantom{{}_1}$: $\mathbb{R}^{Q+1} \gets \max\backslash(\infty, d_1)$ \Comment{scan using $\max\{\bullet, \bullet\}$}
             \Statex
             \For{$i \gets 2,P$}
-                \State $d_i$: $\mathbb{R}^Q \gets$ \Call{$f$}{$p_i, q$} \Comment{apply $f$ pointwise}
                 \State $u\phantom{{}_1}$: $\mathbb{R}^Q \gets \min\{ v_{1 \ldots Q},\, v_{2 \ldots Q+1} \}$ \Comment{pointwise $\min$}
-                \Statex
                 \State $v \gets$ \Call{fr\'echet\_maxmin$\backslash$}{$\infty,\, [u \;|\; d_i]$} \Comment{scan using \Call{fr\'echet\_maxmin}{}}
             \EndFor
             \Statex
@@ -158,17 +155,14 @@ Alg.~\ref{alg:frechet_vanilla}: speed-up by finding stopping criterion for recur
     \caption{Levenshtein}
     \begin{algorithmic}[1]
         \Function{levenshtein\_min}{$a$: $\mathbb{N}$, $x$: $\mathbb{N}^2$} $\to \mathbb{N}$
-            \State \Return $\min\{ 1 + a,\, 1 + x_1,\, x_2 \}$
+            \State \Return $\min\{ \min\{a,\, x_1 \} + 1, x_2 \}$
         \EndFunction
         \Statex
-        \Function{levenshtein\_distance}{$p$: $\mathfrak{C}^{P \times D}$, $q$: $\mathfrak{C}^{Q \times D}$} $\to \mathbb{N}$
-            \State $d_1$: $\mathbb{N}^Q \gets$ \Call{$\delta^{-1}$}{$p_1, q$} \Comment{apply Eq.~\eqref{eq:levenshtein_metric} pointwise}
+        \Function{levenshtein\_distance}{$d$: $\mathbb{N}^{P \times Q}$} $\to \mathbb{N}$
             \State $v\phantom{{}_1}$: $\mathbb{N}^{Q+1} \gets \min(\mathbf{1}_Q, d_1) \,+\,[0, 1, \ldots, Q-1]$
             \Statex
             \For{$i \gets 2,P$}
-                \State $d_i$: $\mathbb{N}^Q \gets$ \Call{$\delta^{-1}$}{$p_i, q$} \Comment{apply Eq.~\eqref{eq:levenshtein_metric} pointwise}
                 \State $u\phantom{{}_1}$: $\mathbb{N}^Q \gets \min\{ v_{1 \ldots Q},\, v_{2 \ldots Q+1} \}$
-                \Statex
                 \State $v \gets$ \Call{levenshtein\_min$\backslash$}{$i + 1,\, [u \;|\; d_i + v_{1 \ldots Q}]$} 
             \EndFor
             \Statex
@@ -197,8 +191,7 @@ Alg.~\ref{alg:frechet_vanilla}: speed-up by finding stopping criterion for recur
             \State \Return \Call{fr\'echet\_maxmin$\backslash$}{$\infty,\, [u \;|\; x]$} \Comment{scan using \Call{fr\'echet\_maxmin}{}}
         \EndFunction
         \Statex
-        \Function{fr\'echet\_distance}{$p$: $\mathbb{R}^{P \times D}$, $q$: $\mathbb{R}^{Q \times D}$, $f$: $\mathbb{R}^D \times \mathbb{R}^D \mapsto \mathbb{R}$} $\to \mathbb{R}$
-            \State $d$: $\mathbb{R}^{P \times Q} \gets [\Call{\ensuremath{f}}{p_1, q} \;|\; \cdots \;|\; \Call{\ensuremath{f}}{p_P, q}]^\top$ \Comment{evaluate rows lazily}
+        \Function{fr\'echet\_distance}{$d$: $\mathbb{R}^{P \times Q}$} $\to \mathbb{R}$
             \State $v$: $\mathbb{R}^{Q+1} \gets \max\backslash(\infty, d_1)$ \Comment{scan using $\max\{\bullet, \bullet\}$}
             \State \Return $[$\Call{fr\'echet\_next$/$}{$v, d_{2 \ldots P}$}$]_{Q+1}$ \Comment{fold using \Call{fr\'echet\_next}{}}
         \EndFunction
