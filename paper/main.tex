@@ -11,7 +11,7 @@ They also applied some ideas therein to design an efficient heuristic for the or
 taken from \citep{buchin14}: It has been used for simplification \citep{agarwal05,bereg08}, clustering \citep{buchin11}, and map-matching \citep{alt03a,driemel12}.
 The Fr\'echet distance also has applications in matching biological sequences \citep{wylie12}, analysing tracking data \citep{brakatsoulas05,buchin08}, and matching coastline data \citep{mascret06}.
 
-taken from \citep{su20}: The time complexity of Fréchet distance is $\mathcal{O}(mn)$ \citep{eiter94}.
+taken from \citep{su20}: The time complexity of Fr\'echet distance is $\mathcal{O}(mn)$ \citep{eiter94}.
 
 \citep{buchin14}: We show that, in the general case, the problem of computing the shortcut Fr\'echet distance is NP-hard.
 This is the first hardness result for a variant of the Fr\'echet distance between two polygonal curves in the plane.
@@ -44,13 +44,23 @@ Work on Fr\'echet distance for uncertain curves, \textbf{e.g.}\footnote{there ar
 We prove that both problems are NP-hard for the Fr\'echet distance in several uncertainty models, and that the upper bound problem remains hard for the discrete Fr\'echet distance.
 In contrast, the lower bound (discrete and continuous) Fr\'echet distance can be computed in polynomial time in some models.
 Furthermore, we show that computing the expected (discrete and continuous) Fr\'echet distance is \#P-hard in some models.
-Computing the Fr\'echet distance between two precise curves can be done in near-quadratic time \citep{agarwal14,alt95,buchin17}, and assuming the strong exponential time hypothesis, it cannot be computed or even approximated well in \textbf{strongly} subquadratic time \citep{bringmann14,buchin19} $\ldots$
+Computing the Fr\'echet distance between two precise curves can be done in near-quadratic time \citep{agarwal14,alt95,buchin17}, and assuming the strong exponential time hypothesis, it cannot be computed or even approximated well in \textbf{strongly} subquadratic time \citep{bringmann14,buchin19a} $\ldots$
 
 $\ldots$ Eventhough the Fr\'echet distance can be calculated faster for several restricted versions \citep{driemel12,gudmundsson18,buchin10,maheshwari11} $\ldots$ our thing works in general and for any metric!
 
 $d=2$ $\rightarrow$ \textit{planar case}
 
 Alg.~\ref{alg:frechet_vanilla}: speed-up by finding stopping criterion for recursion. If $d_{ij} \ge d_{\alpha\beta} \forall \alpha \le i \land \beta \le j$ recursion can stop. Problem: How to find w/o a full search. In a sense, Alg.~\ref{alg:frechet_no_recursion} solves this issue with a bottom-up approach.
+
+Recently there has been some work on estimating Fr\'echet distances for uncertain curves. \citet{buchin23} shows that ... We note that in particular for the problem of finding approximations for the expected Fr\'echet distance when the vertices are either indecisive or even only implicitly given by their distribution function, our fast implementation might leverages MC approaches. + MC sampling perfectly befits the SIMD implementation! (For indecisive case: MC even allows assignment of probabilities to each point)
+
+There are numerous applications of different variants of Fr\'echet distance in common curve and trajectory analysis tasks, such as clustering \citep{buchin19b,buchin19c} or curve simplification \citep{kreveld18,kerkhof19}.
+
+\textit{Stress that our contribution doesn't make any assumptions about the metric or trajectory properties (e.g. Sakoe-Chiba bands) and scaling to higher dimensions only depends on the metric.}
+
+Fr\e'chet: \textit{metric} result / type of $d$ has to be a set with a \textit{total preorder} that induces min/max. Fr\'echet algorithm is a search algorithm.
+
+Levenshtein: \textit{metric} is a binary set. In algorithm True is matched with $0$, and False with $\infty$. Levenshtein algorithm accumulates / counts rather than finds. Levenshtein has to have addition to deal with lack of ordering of metric. This transformation depends on context of accumulation and position in word. Open question: the context of the accumulation solely originates from the position in the word. Is there metric for the words within a word to make this explicit and make it a search algorithm?
 
 \begin{algorithm}
     \caption{Vanilla}
