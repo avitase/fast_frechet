@@ -58,7 +58,7 @@ There are numerous applications of different variants of Fr\'echet distance in c
 
 \textit{Stress that our contribution doesn't make any assumptions about the metric or trajectory properties (e.g. Sakoe-Chiba bands) and scaling to higher dimensions only depends on the metric.}
 
-Fr\e'chet: \textit{metric} result / type of $d$ has to be a set with a \textit{total preorder} that induces min/max. Fr\'echet algorithm is a search algorithm.
+Fr\'echet: \textit{metric} result / type of $d$ has to be a set with a \textit{total preorder} that induces min/max. Fr\'echet algorithm is a search algorithm.
 
 Levenshtein: \textit{metric} is a binary set. In algorithm True is matched with $0$, and False with $\infty$. Levenshtein algorithm accumulates / counts rather than finds. Levenshtein has to have addition to deal with lack of ordering of metric. This transformation depends on context of accumulation and position in word. Open question: the context of the accumulation solely originates from the position in the word. Is there metric for the words within a word to make this explicit and make it a search algorithm?
 
@@ -204,6 +204,41 @@ Levenshtein: \textit{metric} is a binary set. In algorithm True is matched with 
         \Function{fr\'echet\_distance}{$d$: $\mathbb{R}^{P \times Q}$} $\to \mathbb{R}$
             \State $v$: $\mathbb{R}^{Q+1} \gets \max\backslash(\infty, d_1)$ \Comment{scan using $\max\{\bullet, \bullet\}$}
             \State \Return $[$\Call{fr\'echet\_next$/$}{$v, d_{2 \ldots P}$}$]_{Q+1}$ \Comment{fold using \Call{fr\'echet\_next}{}}
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+    \caption{Parallel}
+    \begin{algorithmic}[1]
+        \Function{fr\'echet\_maxmin}{$a$: $\mathbb{R}^B$, $x$: $\mathbb{R}^{B \times 2}$} $\to \mathbb{R}^B$
+            \State \Return $\max\{ \min\{ a,\, x_{:,1} \},\, x_{:,2} \}$
+        \EndFunction
+        \Statex
+        \Function{fr\'echet\_next}{$a$: $\mathbb{R}^{B \times (Q+1)}$, $x$: $\mathbb{R}^{B \times Q}$} $\to \mathbb{R}^{B \times (Q+1)}$
+            \State $u$: $\mathbb{R}^{B \times Q} \gets \min\{ a_{:,(1 \ldots Q)},\, a_{:,(2 \ldots Q+1)} \}$
+            \State \Return \Call{fr\'echet\_maxmin$\backslash$}{$\infty,\, [u \;|\; x]$}
+        \EndFunction
+        \Statex
+        \Function{fr\'echet\_distance}{$[d_1$: $\mathbb{R}^{P_1 \times Q}$, $\ldots$, $d_N$: $\mathbb{R}^{P_N \times Q}]$, $B$: $\mathbb{N}_+$} $\to \mathbb{R}^{\lceil N / B \rceil \cdot B}$
+            \State $i$: $\mathbb{N} \gets 0$
+            \State $r$: $\mathbb{N}^B \gets 0$
+            \State $v$: $\mathbb{N}^{B \times (Q + 1)}$
+            \While{$i = 0 \;\lor\; \max(r) > 0$}
+                \For{$j \gets 1,B$}
+                    \If{$r_j = 0 \;\land\; i < N$}
+                        \State $i \gets i + 1$
+                        \State $r_j \gets P_i$
+                        \State $v_j \gets \max\backslash(\infty, d_{i,1})$ 
+                    \EndIf
+                    \Statex
+                    \State $r_j \gets r_j - 1$
+                \EndFor
+                \Statex
+                \For{$j \gets 1,B$}
+                    \State $v \gets$ \Call{fr\'echet\_next}{$v, d_{?,2 \ldots P_?}$}
+                \EndFor
+            \EndWhile
         \EndFunction
     \end{algorithmic}
 \end{algorithm}
