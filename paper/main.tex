@@ -67,14 +67,14 @@ Levenshtein: \textit{metric} is a binary set. In algorithm True is matched with 
     \label{alg:frechet_vanilla}
     \begin{algorithmic}[1]
         \Function{fr\'echet\_distance}{$p$: $\mathbb{R}^{P \times D}$, $q$: $\mathbb{R}^{Q \times D}$, $f$: $\mathbb{R}^D \times \mathbb{R}^D \mapsto \mathbb{R}$} $\to \mathbb{R}$
-            \State $M$: $\mathbb{R}^{P \times Q}$ $\gets -1$
+            \State $M: \mathbb{R}^{P \times Q}$ $\gets -1$
             \Statex
-            \Function{eval}{i: $\mathbb{N}$, j: $\mathbb{N}$} $\to \mathbb{R}$ \Comment{Capture $p$, $q$, $f$, and $M$}
+            \Function{eval}{$i: \mathbb{N}$, $j: \mathbb{N}$} $\to \mathbb{R}$ \Comment{Capture $p$, $q$, $f$, and $M$}
                 \If{$M_{ij} > -1$}
                     \State \Return $M_{ij}$
                 \EndIf
                 \Statex
-                \State $d$: $\mathbb{R}$ $\gets$ \Call{$f$}{$p_i, q_j$}
+                \State $d: \mathbb{R}$ $\gets$ \Call{$f$}{$p_i, q_j$}
                 \If{$i = 1 \;\land\; j = 1$}
                     \State $M_{ij} \gets d$
                 \ElsIf{$i > 1 \;\land\; j = 1$}
@@ -97,12 +97,12 @@ Levenshtein: \textit{metric} is a binary set. In algorithm True is matched with 
     \caption{No recursion}
     \label{alg:frechet_no_recursion}
     \begin{algorithmic}[1]
-        \Function{fr\'echet\_distance}{$p$: $\mathbb{R}^{P \times D}$, $q$: $\mathbb{R}^{Q \times D}$, $f$: $\mathbb{R}^D \times \mathbb{R}^D \mapsto \mathbb{R}$} $\to \mathbb{R}$
-            \State $M$: $\mathbb{R}^{P \times Q}$ $\gets -1$
+        \Function{fr\'echet\_distance}{$p: \mathbb{R}^{P \times D}$, $q: \mathbb{R}^{Q \times D}$, $f: \mathbb{R}^D \times \mathbb{R}^D \mapsto \mathbb{R}$} $\to \mathbb{R}$
+            \State $M: \mathbb{R}^{P \times Q}$ $\gets -1$
             \Statex
             \For{$i \gets 1,P$}
                 \For{$j \gets 1,Q$}
-                    \State $d$: $\mathbb{R}$ $\gets$ \Call{$f$}{$p_i, q_j$}
+                    \State $d: \mathbb{R}$ $\gets$ \Call{$f$}{$p_i, q_j$}
                     \If{$i = 1 \;\land\; j = 1$}
                         \State $M_{ij} \gets d$
                     \ElsIf{$i > 1 \;\land\; j = 1$}
@@ -123,13 +123,13 @@ Levenshtein: \textit{metric} is a binary set. In algorithm True is matched with 
 \begin{algorithm}
     \caption{Linear memory}
     \begin{algorithmic}[1]
-        \Function{fr\'echet\_distance}{$p$: $\mathbb{R}^{P \times D}$, $q$: $\mathbb{R}^{Q \times D}$, $f$: $\mathbb{R}^D \times \mathbb{R}^D \mapsto \mathbb{R}$} $\to \mathbb{R}$
-            \State $d_1$: $\mathbb{R}^Q \gets$ \Call{$f$}{$p_1, q$}
-            \State $v\phantom{{}_1}$: $\mathbb{R}^{Q+1} \gets \max\backslash(\infty, d_1)$ \Comment{scan using $\max\{\bullet, \bullet\}$}
+        \Function{fr\'echet\_distance}{$p: \mathbb{R}^{P \times D}$, $q: \mathbb{R}^{Q \times D}$, $f: \mathbb{R}^D \times \mathbb{R}^D \mapsto \mathbb{R}$} $\to \mathbb{R}$
+            \State $d_1: \mathbb{R}^Q \gets$ \Call{$f$}{$p_1, q$}
+            \State $v: \mathbb{R}^{Q+1} \gets \max\backslash(\infty, d_1)$ \Comment{scan using $\max\{\bullet, \bullet\}$}
             \Statex
             \For{$i \gets 2,P$}
-                \State $d_i$: $\mathbb{R}^Q \gets$ \Call{$f$}{$p_i, q$} \Comment{apply $f$ poinwise}
-                \State $u\phantom{{}_1}$: $\mathbb{R}^Q \gets \min\{ v_{1 \ldots Q},\, v_{2 \ldots Q+1} \}$ \Comment{pointwise $\min$}
+                \State $d_i: \mathbb{R}^Q \gets$ \Call{$f$}{$p_i, q$} \Comment{apply $f$ poinwise}
+                \State $u: \mathbb{R}^Q \gets \min\{ v_{1 \ldots Q},\, v_{2 \ldots Q+1} \}$ \Comment{pointwise $\min$}
                 \Statex
                 \For{$j \gets 1,Q$}
                     \State $v_{j+1} \gets \max\{ \min\{ v_j,\, u_j \},\, d_{ij} \}$
@@ -144,15 +144,15 @@ Levenshtein: \textit{metric} is a binary set. In algorithm True is matched with 
 \begin{algorithm}
     \caption{Scan}
     \begin{algorithmic}[1]
-        \Function{fr\'echet\_maxmin}{$a$: $\mathbb{R}$, $x$: $\mathbb{R}^2$} $\to \mathbb{R}$
+        \Function{fr\'echet\_maxmin}{$a: \mathbb{R}$, $x: \mathbb{R}^2$} $\to \mathbb{R}$
             \State \Return $\max\{ \min\{ a,\, x_1 \},\, x_2 \}$
         \EndFunction
         \Statex
-        \Function{fr\'echet\_distance}{$d$: $\mathbb{R}^{P \times Q}$} $\to \mathbb{R}$
-            \State $v\phantom{{}_1}$: $\mathbb{R}^{Q+1} \gets \max\backslash(\infty, d_1)$ \Comment{scan using $\max\{\bullet, \bullet\}$}
+        \Function{fr\'echet\_distance}{$d: \mathbb{R}^{P \times Q}$} $\to \mathbb{R}$
+            \State $v: \mathbb{R}^{Q+1} \gets \max\backslash(\infty, d_1)$ \Comment{scan using $\max\{\bullet, \bullet\}$}
             \Statex
             \For{$i \gets 2,P$}
-                \State $u\phantom{{}_1}$: $\mathbb{R}^Q \gets \min\{ v_{1 \ldots Q},\, v_{2 \ldots Q+1} \}$ \Comment{pointwise $\min$}
+                \State $u: \mathbb{R}^Q \gets \min\{ v_{1 \ldots Q},\, v_{2 \ldots Q+1} \}$ \Comment{pointwise $\min$}
                 \State $v \gets$ \Call{fr\'echet\_maxmin$\backslash$}{$\infty,\, [u \;|\; d_i]$} \Comment{scan using \Call{fr\'echet\_maxmin}{}}
             \EndFor
             \Statex
@@ -164,15 +164,15 @@ Levenshtein: \textit{metric} is a binary set. In algorithm True is matched with 
 \begin{algorithm}
     \caption{Levenshtein}
     \begin{algorithmic}[1]
-        \Function{levenshtein\_min}{$a$: $\mathbb{N}$, $x$: $\mathbb{N}^2$} $\to \mathbb{N}$
+        \Function{levenshtein\_min}{$a: \mathbb{N}$, $x: \mathbb{N}^2$} $\to \mathbb{N}$
             \State \Return $\min\{ \min\{a,\, x_1 \} + 1, x_2 \}$
         \EndFunction
         \Statex
-        \Function{levenshtein\_distance}{$d$: $\mathbb{N}^{P \times Q}$} $\to \mathbb{N}$
-            \State $v\phantom{{}_1}$: $\mathbb{N}^{Q+1} \gets \min(\mathbf{1}_Q, d_1) \,+\,[0, 1, \ldots, Q-1]$
+        \Function{levenshtein\_distance}{$d: \mathbb{N}^{P \times Q}$} $\to \mathbb{N}$
+            \State $v: \mathbb{N}^{Q+1} \gets \min(\mathbf{1}_Q, d_1) \,+\,[0, 1, \ldots, Q-1]$
             \Statex
             \For{$i \gets 2,P$}
-                \State $u\phantom{{}_1}$: $\mathbb{N}^Q \gets \min\{ v_{1 \ldots Q},\, v_{2 \ldots Q+1} \}$
+                \State $u: \mathbb{N}^Q \gets \min\{ v_{1 \ldots Q},\, v_{2 \ldots Q+1} \}$
                 \State $v \gets$ \Call{levenshtein\_min$\backslash$}{$i + 1,\, [u \;|\; d_i + v_{1 \ldots Q}]$} 
             \EndFor
             \Statex
@@ -192,53 +192,57 @@ Levenshtein: \textit{metric} is a binary set. In algorithm True is matched with 
 \begin{algorithm}
     \caption{Fold/Scan}
     \begin{algorithmic}[1]
-        \Function{fr\'echet\_maxmin}{$a$: $\mathbb{R}$, $x$: $\mathbb{R}^2$} $\to \mathbb{R}$
+        \Function{fr\'echet\_maxmin}{$a: \mathbb{R}$, $x: \mathbb{R}^2$} $\to \mathbb{R}$
             \State \Return $\max\{ \min\{ a,\, x_1 \},\, x_2 \}$
         \EndFunction
         \Statex
-        \Function{fr\'echet\_next}{$a$: $\mathbb{R}^{Q+1}$, $x$: $\mathbb{R}^{Q}$} $\to \mathbb{R}^{Q+1}$
-            \State $u$: $\mathbb{R}^Q \gets \min\{ a_{1 \ldots Q},\, a_{2 \ldots Q+1} \}$ \Comment{pointwise $\min$}
+        \Function{fr\'echet\_next}{$a: \mathbb{R}^{Q+1}$, $x: \mathbb{R}^{Q}$} $\to \mathbb{R}^{Q+1}$
+            \State $u: \mathbb{R}^Q \gets \min\{ a_{1 \ldots Q},\, a_{2 \ldots Q+1} \}$ \Comment{pointwise $\min$}
             \State \Return \Call{fr\'echet\_maxmin$\backslash$}{$\infty,\, [u \;|\; x]$} \Comment{scan using \Call{fr\'echet\_maxmin}{}}
         \EndFunction
         \Statex
-        \Function{fr\'echet\_distance}{$d$: $\mathbb{R}^{P \times Q}$} $\to \mathbb{R}$
-            \State $v$: $\mathbb{R}^{Q+1} \gets \max\backslash(\infty, d_1)$ \Comment{scan using $\max\{\bullet, \bullet\}$}
+        \Function{fr\'echet\_distance}{$d: \mathbb{R}^{P \times Q}$} $\to \mathbb{R}$
+            \State $v: \mathbb{R}^{Q+1} \gets \max\backslash(\infty, d_1)$ \Comment{scan using $\max\{\bullet, \bullet\}$}
             \State \Return $[$\Call{fr\'echet\_next$/$}{$v, d_{2 \ldots P}$}$]_{Q+1}$ \Comment{fold using \Call{fr\'echet\_next}{}}
         \EndFunction
     \end{algorithmic}
 \end{algorithm}
 
 \begin{algorithm}
-    \caption{Parallel}
+    \caption{Batched}
     \begin{algorithmic}[1]
-        \Function{fr\'echet\_maxmin}{$a$: $\mathbb{R}^B$, $x$: $\mathbb{R}^{B \times 2}$} $\to \mathbb{R}^B$
-            \State \Return $\max\{ \min\{ a,\, x_{:,1} \},\, x_{:,2} \}$
+        \Function{fr\'echet\_maxmin}{$\alpha: \mathbb{R}^B$, $\chi: \mathbb{R}^{2 \times B}$} $\to \mathbb{R}^B$
+            \State \Return $\max\{ \min\{ \alpha,\, \chi_1 \},\, \chi_2 \}$
         \EndFunction
         \Statex
-        \Function{fr\'echet\_next}{$a$: $\mathbb{R}^{B \times (Q+1)}$, $x$: $\mathbb{R}^{B \times Q}$} $\to \mathbb{R}^{B \times (Q+1)}$
-            \State $u$: $\mathbb{R}^{B \times Q} \gets \min\{ a_{:,(1 \ldots Q)},\, a_{:,(2 \ldots Q+1)} \}$
-            \State \Return \Call{fr\'echet\_maxmin$\backslash$}{$\infty,\, [u \;|\; x]$}
-        \EndFunction
-        \Statex
-        \Function{fr\'echet\_distance}{$[d_1$: $\mathbb{R}^{P_1 \times Q}$, $\ldots$, $d_N$: $\mathbb{R}^{P_N \times Q}]$, $B$: $\mathbb{N}_+$} $\to \mathbb{R}^{\lceil N / B \rceil \cdot B}$
-            \State $i$: $\mathbb{N} \gets 0$
-            \State $r$: $\mathbb{N}^B \gets 0$
-            \State $v$: $\mathbb{N}^{B \times (Q + 1)}$
-            \While{$i = 0 \;\lor\; \max(r) > 0$}
-                \For{$j \gets 1,B$}
-                    \If{$r_j = 0 \;\land\; i < N$}
-                        \State $i \gets i + 1$
-                        \State $r_j \gets P_i$
-                        \State $v_j \gets \max\backslash(\infty, d_{i,1})$ 
-                    \EndIf
-                    \Statex
-                    \State $r_j \gets r_j - 1$
-                \EndFor
+        \Function{fr\'echet\_distance}{$[d_1: \mathbb{R}^{P_1 \times Q}$, $\ldots$, $d_N: \mathbb{R}^{P_N \times Q}]$, $B: \mathbb{N}_+$} $\to \mathbb{R}^N$
+            \State $\rho: \mathbb{Z}^B \gets 2$
+            \State $\mu: \mathbb{N}^B \gets [1, \ldots, B]$
+            \State $c: \mathbb{N} \gets B + 1$
+            \Statex
+            \State $\mathcal{V}: \mathbb{R}^{(Q+1) \times B} \gets [\max\backslash(\infty, d_{1,1}) \;|\; \cdots \;|\; \max\backslash(\infty, d_{B,1})]$ 
+            \State $w: \mathbb{R}^N$
+            \Statex
+            \While{$c - B < N$}
+                \State $\mathcal{U}: \mathbb{R}^{Q \times B} \gets \min\{ \mathcal{V}_{1 \ldots Q},\, \mathcal{V}_{2 \ldots Q+1} \}$
+                \State $\mathcal{D}: \mathbb{R}^{Q \times B} \gets [d_{\mu_1,\min\{\rho_1, P_{\mu_1}\}} \;|\; \cdots \;|\; d_{\mu_B,\min\{\rho_B, P_{\mu_B}\}}]$
+                \State $\mathcal{V} \gets$ \Call{fr\'echet\_maxmin$\backslash$}{$\infty,\, [[\mathcal{U}_1, \mathcal{D}_1], \ldots, [\mathcal{U}_Q, \mathcal{D}_Q]]$}
                 \Statex
-                \For{$j \gets 1,B$}
-                    \State $v \gets$ \Call{fr\'echet\_next}{$v, d_{?,2 \ldots P_?}$}
+                \For{$i \gets \{i \,|\, \rho_i = P_{\mu_i} \}$}
+                    \State $w_{\mu_i} \gets \mathcal{V}_{Q+1,i}$
+                    \Statex
+                    \If{$c < N$}
+                        \State $\rho_i = P_c$
+                        \State $\mu_i = c$
+                        \Statex
+                        \State $\mathcal{V}_{:,i} \gets \max\backslash(\infty, d_{c,1})$ 
+                    \EndIf
+                    \State $c \gets c + 1$
                 \EndFor
+                \State $\rho \gets \rho + 1$
             \EndWhile
+            \Statex
+            \State \Return $w$
         \EndFunction
     \end{algorithmic}
 \end{algorithm}
@@ -247,11 +251,11 @@ Levenshtein: \textit{metric} is a binary set. In algorithm True is matched with 
     \caption{Scan: from \citep{kenneth62,kenneth79}}
     \label{alg:scan}
     \begin{algorithmic}[1]
-        \Function{$[f: \mathcal{T}_2 \times \mathcal{T}_1 \to \mathcal{T}_2]\backslash$}{$init$: $\mathcal{T}_2$, $x$: $\mathcal{T}_1^N$} $\to \mathcal{T}_2^{N+1}$
-            \State $y$: $\mathcal{T}_2^{N+1}$
-            \State $y_1 \gets init$
+        \Function{$[f: \mathcal{T}_2 \times \mathcal{T}_1 \to \mathcal{T}_2]\backslash$}{$t_0: \mathcal{T}_2$, $x: \mathcal{T}_1^N$} $\to \mathcal{T}_2^{N+1}$
+            \State $y: \mathcal{T}_2^{N+1}$
+            \State $y_1 \gets t_0$
             \Statex
-            \State $t$: $\mathcal{T}_2$ $\gets init$
+            \State $t: \mathcal{T}_2$ $\gets t_0$
             \For{$i \gets 1,N$}
                 \State $t \gets f(t, x_i)$
                 \State $y_{i+1} \gets t$
@@ -266,8 +270,8 @@ Levenshtein: \textit{metric} is a binary set. In algorithm True is matched with 
     \caption{Fold: from \citep{kenneth62,kenneth79}}
     \label{alg:fold}
     \begin{algorithmic}[1]
-        \Function{$[f: \mathcal{T}_2 \times \mathcal{T}_1 \to \mathcal{T}_2]/$}{$init$: $\mathcal{T}_2$, $x$: $\mathcal{T}_1^N$} $\to \mathcal{T}_2$
-            \State $t$: $\mathcal{T}_2$ $\gets init$
+        \Function{$[f: \mathcal{T}_2 \times \mathcal{T}_1 \to \mathcal{T}_2]/$}{$t_0: \mathcal{T}_2$, $x: \mathcal{T}_1^N$} $\to \mathcal{T}_2$
+            \State $t: \mathcal{T}_2$ $\gets t_0$
             \For{$i \gets 1,N$}
                 \State $t \gets f(t, x_i)$
             \EndFor
