@@ -221,32 +221,33 @@ Levenshtein: \textit{metric} is a binary set. In algorithm True is matched with 
         \EndFunction
         \Statex
         \Function{fr\'echet\_distance}{$[d_1: \mathbb{R}^{P_1 \times Q}$, $\ldots$, $d_N: \mathbb{R}^{P_N \times Q}]$, $B: \mathbb{N}_+$} $\to \mathbb{R}^N$
-            \State $\rho: \mathbb{N}^B \gets 2$
             \State $\mu: \mathbb{N}^B \gets [1, \ldots, B]$
-            \State $c: \mathbb{N} \gets B + 1$
+            \State $\rho: \mathbb{N}^B \gets [1, \ldots, 1]$
             \State $w: \mathbb{R}^N$
             \Statex
             \State $\mathcal{V}: \mathbb{R}^{(Q+1) \times B} \gets [\max\backslash(0, d_{1,1}) \;|\; \cdots \;|\; \max\backslash(0, d_{B,1})]$ 
             \State $\mathcal{V}_1 \gets \infty$
             \Statex
-            \While{$c - B < N$}
-                \State $\mathcal{U}: \mathbb{R}^{Q \times B} \gets \min\{ \mathcal{V}_{1 \ldots Q},\, \mathcal{V}_{2 \ldots Q+1} \}$
-                \State $\mathcal{D}: \mathbb{R}^{Q \times B} \gets [d_{\mu_1,\min\{\rho_1, P_{\mu_1}\}} \;|\; \cdots \;|\; d_{\mu_B,\min\{\rho_B, P_{\mu_B}\}}]$
-                \State $\mathcal{V} \gets$ \Call{fr\'echet\_maxmin$\backslash$}{$\infty,\, [[\mathcal{U}_1, \mathcal{D}_1], \ldots, [\mathcal{U}_Q, \mathcal{D}_Q]]$}
-                \Statex
-                \For{$i \gets \{i \,|\, \rho_i = P_{\mu_i} \}$}
-                    \State $w_{\mu_i} \gets \mathcal{V}_{Q+1,i}$
+            \State $i: \mathbb{N} \gets 0$
+            \While{$i < N$}
+                \While{$\min\{ P_{\mu_1} - \rho_1, \ldots, P_{\mu_B} - \rho_B \} > 0$}
+                    \State $\rho \gets \rho + 1$
                     \Statex
-                    \If{$c < N$}
-                        \State $\rho_i = P_c$
-                        \State $\mu_i = c$
-                        \Statex
-                        \State $\mathcal{V}_{:,i} \gets \max\backslash(0, d_{c,1})$ 
-                        \State $\mathcal{V}_{:,1} \gets \infty$
-                    \EndIf
-                    \State $c \gets c + 1$
+                    \State $\mathcal{U}: \mathbb{R}^{Q \times B} \gets \min\{ \mathcal{V}_{1 \ldots Q},\, \mathcal{V}_{2 \ldots Q+1} \}$
+                    \State $\mathcal{D}: \mathbb{R}^{Q \times B} \gets [d_{\mu_1,\, \rho_1} \;|\; \cdots \;|\; d_{\mu_B,\, \rho_B}]$
+                    \State $\mathcal{V} \gets$ \Call{fr\'echet\_maxmin$\backslash$}{$\infty,\, [[\mathcal{U}_1, \mathcal{D}_1], \ldots, [\mathcal{U}_Q, \mathcal{D}_Q]]$}
+                \EndWhile
+                \Statex
+                \For{$j \gets \{j \,|\, \rho_j = P_{\mu_j} \}$}
+                    \State $i \gets i + 1$
+                    \Statex
+                    \State $\mu_j = \max\{i + 1, N\}$
+                    \State $\rho_j = P_{\mu_j}$
+                    \State $w_{\mu_j} \gets \mathcal{V}_{Q+1,j}$
+                    \Statex
+                    \State $\mathcal{V}_{:,j} \gets \max\backslash(0, d_{\mu_j,1})$ 
+                    \State $\mathcal{V}_{:,1} \gets \infty$
                 \EndFor
-                \State $\rho \gets \rho + 1$
             \EndWhile
             \Statex
             \State \Return $w$
