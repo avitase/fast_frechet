@@ -15,8 +15,8 @@ def frechet_distance(p, q, metric):
     v = np.insert(v, 0, np.inf)
 
     for i in range(1, P):
-        d = metric(p[i], q)
         u = np.minimum(v[:-1], v[1:])
+        d = metric(p[i], q)
 
         v = list(accumulate(zip(u, d), frechet_maxmin, initial=np.inf))
 

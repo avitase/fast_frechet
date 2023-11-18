@@ -13,7 +13,7 @@ More precisely,
 1. [`linear_memory`](fast_frechet/linear_memory.py): This formulation reduces the quadratic memory footprint to a linear one.
 1. [`accumulate`](fast_frechet/accumulate.py): Formulation using a scan operation.
 1. [`reduce_accumulate`](fast_frechet/reduce_accumulate.py): Formulation using a fold operation.
-1. [`compiled`](fast_frechet/compiled.py): A combination of 5., 6., and 7. using the [Numba library](https://numba.pydata.org/) for JIT compilation of the innermost loop.
+1. [`batched`](fast_frechet/batched.py): A variant of [`accumulate`](fast_frechet/accumulate.py) that operates on batches.
 
 Implementations of all these variants can be found under [`fast_frechet/`](fast_frechet/) or by simply clicking on the listed names above.
 
@@ -47,14 +47,34 @@ For invoking the [benchmark script](fast_frechet/__main__.py), run:
 
 ```bash
 $ python fast_frechet
-        no_recursion: 795.3 ms
-          branchless: 766.5 ms
-          vectorized: 152.5 ms
-       linear_memory: 119.2 ms
-          accumulate: 97.05 ms
-   reduce_accumulate: 97.15 ms
-            compiled: 5.562 ms
+        no_recursion:  756 ms
+          branchless:  723 ms
+          vectorized:  157 ms
+       linear_memory:  133 ms
+          accumulate:  101 ms
+   reduce_accumulate:  101 ms
 ```
 (Note that we don't even try to benchmark the [`vanilla`](fast_frechet/vanilla.py) version here, as it already crashes for polygonal curves with a few hundred points due to its recursive nature.)
+
+To see the performance of the batched variant, run:
+
+```bash
+$ python fast_frechet --batched
+ Number of trajectories: 500
+Length of trajectories: [80, 120]
+
+   reduce_accumulate (reference): 2464 ms
+                    batch size=4: 2036 ms
+                    batch size=8: 1156 ms
+                   batch size=16:  608 ms
+                   batch size=32:  397 ms
+                   batch size=64:  227 ms
+                  batch size=128:  193 ms
+                  batch size=256:  137 ms
+                  batch size=512:  148 ms
+                 batch size=1024:  248 ms
+                 batch size=2048:  458 ms
+```
+The performance depends on the chosen batch size. In particular, if the batch size becomes larger as the number of trajectories the performance will deteriorate.
 
 [vanilla]: http://www.kr.tuwien.ac.at/staff/eiter/et-archive/cdtr9464.pdf
