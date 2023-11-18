@@ -3,8 +3,8 @@ import pytest
 
 from fast_frechet import (
     accumulate,
+    batched,
     branchless,
-    compiled,
     linear_memory,
     no_recursion,
     reduce_accumulate,
@@ -13,9 +13,10 @@ from fast_frechet import (
 )
 
 
-def metric(a, b):
-    dx = a[..., 0] - b[..., 0]
-    dy = a[..., 1] - b[..., 1]
+def metric(p, q):
+    dx = p[..., 0] - q[..., 0]
+    dy = p[..., 1] - q[..., 1]
+
     return dx**2 + dy**2
 
 
@@ -32,7 +33,6 @@ def generate_trajectory(n, *, rng):
         vanilla,
         no_recursion,
         branchless,
-        compiled,
         vectorized,
         linear_memory,
         accumulate,
@@ -54,7 +54,6 @@ def test_simple_example(variant):
     [
         no_recursion,
         branchless,
-        compiled,
         vectorized,
         linear_memory,
         accumulate,
@@ -71,4 +70,18 @@ def test_frechet(variant, P, Q, seed):
 
     d1 = vanilla.frechet_distance(p, q, metric=metric)
     d2 = variant.frechet_distance(p, q, metric=metric)
+    assert d1 == d2
+
+
+@pytest.mark.parametrize("N,batch_size", [(1, 1), (2, 3), (3, 2), (20, 3)])
+@pytest.mark.parametrize("seed", range(100))
+def test_batched_frechet(N, batch_size, seed):
+    rng = np.random.default_rng(seed)
+
+    p = [generate_trajectory(n=n, rng=rng) for n in rng.integers(3, 10, size=N)]
+    q = generate_trajectory(n=4, rng=rng)
+
+    d1 = [accumulate.frechet_distance(p[i], q, metric=metric) for i in range(N)]
+    d2 = batched.frechet_distance(p, q, metric, batch_size=batch_size).tolist()
+
     assert d1 == d2
