@@ -242,7 +242,7 @@ Levenshtein: \textit{metric} is a binary set. In algorithm True is matched with 
                     \State $w_{\mu_j} \gets \mathcal{V}_{Q+1,j}$
                     \State $i \gets i + 1$
                     \Statex
-                    \State $\rho_j \gets \infty$
+                    \State $\rho_j \gets \rho_j + 1$
                     \If{$i + B \le N$}
                         \State $\mu_j = i + B$
                         \State $\rho_j = 0$
