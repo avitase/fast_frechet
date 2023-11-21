@@ -1,3 +1,5 @@
+Other applications of Fr\'echet distance (instead of measuring distances between curves: measure distances between probability distributions--for the Euclidean distance the Fr\'echet distance is equivalent to the Wasserstein-2 distance \citep{kantorovich60,wasserstein69}): \citep{dowson82}: \textit{The Fr\'echet distance between multivariate normal distributions} used as a basis of various evaluation metrics such as the Fr\'echet inception distance \citep{heusel17}, Fr\'echet audio distance \citep{kilgour19}, or the Fr\'echet ChemNet distance \citep{preuer18}.
+
 taken from \citep{bereg08}:
 Fr\'echet distance was first defined by Maurice Fr\'echet in 1906 \citep{frechet06}.
 While known as a famous distance measure in the field of mathematics (more specifically, abstract spaces), it was Alt and Godau who first applied it in measuring the similarity of polygonal curves in early 1990s \citep{alt92,alt95}.
@@ -8,8 +10,8 @@ So if the (continuous) Fr\'echet distance is realized by an alpha-carbon atom an
 Jiang, et al.\ showed that given two planar polygonal chains the minimum discrete Fr\'echet distance between them, under both translation and rotation, can be computed in polynomial time.
 They also applied some ideas therein to design an efficient heuristic for the original protein structure-structure alignment problem in 3D.
 
-taken from \citep{buchin14}: It has been used for simplification \citep{agarwal05,bereg08}, clustering \citep{buchin11}, and map-matching \citep{alt03a,driemel12}.
-The Fr\'echet distance also has applications in matching biological sequences \citep{wylie12}, analysing tracking data \citep{brakatsoulas05,buchin08}, and matching coastline data \citep{mascret06}.
+taken from \citep{buchin14}: It has been used for simplification \citep{agarwal05,bereg08}, clustering \citep{buchin08b}, and map-matching \citep{alt03a,driemel12}.
+The Fr\'echet distance also has applications in matching biological sequences \citep{wylie12}, analysing tracking data \citep{brakatsoulas05,buchin08a}, and matching coastline data \citep{mascret06}.
 
 taken from \citep{su20}: The time complexity of Fr\'echet distance is $\mathcal{O}(mn)$ \citep{eiter94}.
 
@@ -61,6 +63,8 @@ There are numerous applications of different variants of Fr\'echet distance in c
 Fr\'echet: \textit{metric} result / type of $d$ has to be a set with a \textit{total preorder} that induces min/max. Fr\'echet algorithm is a search algorithm.
 
 Levenshtein: \textit{metric} is a binary set. In algorithm True is matched with $0$, and False with $\infty$. Levenshtein algorithm accumulates / counts rather than finds. Levenshtein has to have addition to deal with lack of ordering of metric. This transformation depends on context of accumulation and position in word. Open question: the context of the accumulation solely originates from the position in the word. Is there metric for the words within a word to make this explicit and make it a search algorithm?
+
+Our contribution: complementary to \citet{bringmann19}: \textit{Walking the Frog Fast in Practice}
 
 \begin{algorithm}
     \caption{Vanilla}
@@ -293,34 +297,3 @@ Levenshtein: \textit{metric} is a binary set. In algorithm True is matched with 
         \EndFunction
     \end{algorithmic}
 \end{algorithm}
-
-\backmatter
-
-\bmhead{Supplementary information}
-
-If your article has accompanying supplementary file/s please state so here. 
-
-Authors reporting data from electrophoretic gels and blots should supply the full unprocessed scans for key as part of their Supplementary information. This may be requested by the editorial team/s if it is missing.
-
-Please refer to Journal-level guidance for any specific requirements.
-
-\bmhead{Acknowledgments}
-
-Acknowledgments are not compulsory. Where included they should be brief. Grant or contribution numbers may be acknowledged.
-
-Please refer to Journal-level guidance for any specific requirements.
-
-\section*{Declarations}
-
-Some journals require declarations to be submitted in a standardised format. Please check the Instructions for Authors of the journal to which you are submitting to see if you need to complete this section. If yes, your manuscript must contain the following sections under the heading `Declarations':
-
-\begin{itemize}
-\item Funding
-\item Conflict of interest/Competing interests (check journal-specific guidelines for which heading to use)
-\item Ethics approval 
-\item Consent to participate
-\item Consent for publication
-\item Availability of data and materials
-\item Code availability 
-\item Authors' contributions
-\end{itemize}
