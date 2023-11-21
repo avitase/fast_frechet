@@ -126,7 +126,7 @@ Levenshtein: \textit{metric} is a binary set. In algorithm True is matched with 
         \Function{fr\'echet\_distance}{$p: \mathbb{R}^{P \times D}$, $q: \mathbb{R}^{Q \times D}$, $f: \mathbb{R}^D \times \mathbb{R}^D \mapsto \mathbb{R}$} $\to \mathbb{R}$
             \State $d_1: \mathbb{R}^Q \gets$ \Call{$f$}{$p_1, q$}
             \Statex
-            \State $v: \mathbb{R}^{Q+1} \gets \max\backslash(0, d_1)$
+            \State $v: \mathbb{R}^{Q+1} \gets \max\!\backslash(0, d_1)$
             \State $v_1 \gets \infty$
             \Statex
             \For{$i \gets 2,P$}
@@ -151,7 +151,7 @@ Levenshtein: \textit{metric} is a binary set. In algorithm True is matched with 
         \EndFunction
         \Statex
         \Function{fr\'echet\_distance}{$d: \mathbb{R}^{P \times Q}$} $\to \mathbb{R}$
-            \State $v: \mathbb{R}^{Q+1} \gets \max\backslash(0, d_1)$
+            \State $v: \mathbb{R}^{Q+1} \gets \max\!\backslash(0, d_1)$
             \State $v_1 \gets \infty$
             \Statex
             \For{$i \gets 2,P$}
@@ -172,7 +172,9 @@ Levenshtein: \textit{metric} is a binary set. In algorithm True is matched with 
         \EndFunction
         \Statex
         \Function{levenshtein\_distance}{$d: \mathbb{N}^{P \times Q}$} $\to \mathbb{N}$
-            \State $v: \mathbb{N}^{Q+1} \gets \min(\mathbf{1}_Q, d_1) \,+\,[0, 1, \ldots, Q-1]$
+            \State $v: \mathbb{N}^{Q+1}$
+            \State $v_1 \gets 1$
+            \State $v_{2 \ldots (Q + 1)} \gets \min\{1, d_1\} + [0, \ldots, (Q - 1)]$
             \Statex
             \For{$i \gets 2,P$}
                 \State $u: \mathbb{N}^Q \gets \min\{ v_{1 \ldots Q},\, v_{2 \ldots Q+1} \}$
@@ -205,7 +207,7 @@ Levenshtein: \textit{metric} is a binary set. In algorithm True is matched with 
         \EndFunction
         \Statex
         \Function{fr\'echet\_distance}{$d: \mathbb{R}^{P \times Q}$} $\to \mathbb{R}$
-            \State $v: \mathbb{R}^{Q+1} \gets \max\backslash(0, d_1)$
+            \State $v: \mathbb{R}^{Q+1} \gets \max\!\backslash(0, d_1)$
             \State $v_1 \gets \infty$
             \Statex
             \State \Return $[$\Call{fr\'echet\_next$/$}{$v, d_{2 \ldots P}$}$]_{Q+1}$
@@ -224,10 +226,10 @@ Levenshtein: \textit{metric} is a binary set. In algorithm True is matched with 
             \State $\mu: \mathbb{N}^B \gets [\min\{1, N\}, \ldots, \min\{B, N\}]$
             \State $\rho: \mathbb{N}^B \gets [1, \ldots, 1]$
             \Statex
-            \State $\mathcal{V}: \mathbb{R}^{(Q+1) \times B} \gets [\max\backslash(0, d_{\min\{1, N\}, 1}) \;|\; \cdots \;|\; \max\backslash(0, d_{\min\{B, N\}, 1})]$ 
+            \State $\mathcal{V}: \mathbb{R}^{(Q+1) \times B} \gets [\max\!\backslash(0, d_{\min\{1, N\}, 1}) \;|\; \cdots \;|\; \max\!\backslash(0, d_{\min\{B, N\}, 1})]$ 
             \State $\mathcal{V}_1 \gets [\infty, \ldots, \infty]$
             \Statex
-            \State $w: \mathbb{R}^N$
+            \State $\delta_\mathrm{dF}: \mathbb{R}^N$
             \State $i: \mathbb{N} \gets 0$
             \While{$i < \max\{B, N\}$}
                 \While{$\nexists j: \rho_j = P_{\mu_j}$}
@@ -239,7 +241,7 @@ Levenshtein: \textit{metric} is a binary set. In algorithm True is matched with 
                 \EndWhile
                 \Statex
                 \For{$j \gets \{j \,|\, \rho_j = P_{\mu_j} \}$}
-                    \State $w_{\mu_j} \gets \mathcal{V}_{Q+1,j}$
+                    \State ${\delta_\mathrm{dF}}_{\mu_j} \gets \mathcal{V}_{Q+1,j}$
                     \State $i \gets i + 1$
                     \Statex
                     \State $\rho_j \gets \rho_j + 1$
@@ -247,13 +249,13 @@ Levenshtein: \textit{metric} is a binary set. In algorithm True is matched with 
                         \State $\mu_j = i + B$
                         \State $\rho_j = 0$
                         \Statex
-                        \State $\mathcal{V}_{:,j} \gets \max\backslash(0, d_{\mu_j,1})$ 
+                        \State $\mathcal{V}_{:,j} \gets \max\!\backslash(0, d_{\mu_j,1})$ 
                         \State $\mathcal{V}_{1,j} \gets \infty$
                     \EndIf
                 \EndFor
             \EndWhile
             \Statex
-            \State \Return $w$
+            \State \Return $\delta_\mathrm{dF}$
         \EndFunction
     \end{algorithmic}
 \end{algorithm}
