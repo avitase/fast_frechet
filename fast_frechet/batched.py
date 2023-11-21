@@ -20,7 +20,7 @@ def frechet_distance(p, q, metric, *, batch_size):
     v = np.maximum.accumulate(metric(p0[np.newaxis], q[:, np.newaxis]))
     v = np.concatenate((np.full((1, batch_size), np.inf), v))
 
-    w = np.empty(N)
+    dF = np.empty(N)
     i = 0
     while i < max(batch_size, N):
         while not np.any(rho == P[mu]):
@@ -38,7 +38,7 @@ def frechet_distance(p, q, metric, *, batch_size):
             rho += 1
 
         for j in [k for k in range(batch_size) if rho[k] == P[mu[k]]]:
-            w[mu[j]] = v[-1, j]
+            dF[mu[j]] = v[-1, j]
             i += 1
 
             rho[j] += 1
@@ -48,4 +48,4 @@ def frechet_distance(p, q, metric, *, batch_size):
 
                 v[1:, j] = np.maximum.accumulate(metric(p[mu[j]][0], q))
 
-    return w
+    return dF
