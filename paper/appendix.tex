@@ -77,3 +77,25 @@
         \EndFunction
     \end{algorithmic}
 \end{algorithm}
+
+\begin{algorithm}
+    \caption{DTW}
+    \begin{algorithmic}[1]
+        \Function{dtw\_min}{$a: \mathbb{R}$, $x: \mathbb{R}^2$} $\to \mathbb{R}$
+            \State \Return $\min\{ a,\, x_1 \} + x_2$
+        \EndFunction
+        \Statex
+        \Function{dtw\_next}{$a: \mathbb{R}^{Q+1}$, $x: \mathbb{R}^{Q}$} $\to \mathbb{R}^{Q+1}$
+            \State $u: \mathbb{R}^Q \gets \min\{ a_{1 \ldots Q},\, a_{2 \ldots Q+1} \}$
+            \State \Return \Call{dtw\_min$\backslash$}{$\infty,\, [u \;|\; x]$}
+        \EndFunction
+        \Statex
+        \Function{dtw\_distance}{$d: \mathbb{R}^{P \times Q}$} $\to \mathbb{R}$
+            \State $v: \mathbb{R}^{Q+1} \gets +\!\backslash(0, d_1)$
+            \State $v_1 \gets \infty$
+            \Statex
+            \State \Return $[$\Call{dtw\_next$/$}{$v, d_{2 \ldots P}$}$]_{Q+1}$
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+
