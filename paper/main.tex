@@ -3,11 +3,20 @@ The Fr\'echet distance was introduced by Maurice Fr\'echet in 1906 \citep{freche
 Over the years, it has found applications in various domains, e.g., as a distance measure between probability distributions it is equivalent to the Wasserstein-2 distance \citep{kantorovich60,wasserstein69} for the $\ell^2$-norm.
 \citet{dowson82} demonstrated that for normal distributions the Fr\'echet distance can be calculated explicitly and since then it is used a basis of various evaluation metrics such as the Fr\'echet inception distance \citep{heusel17}, Fr\'echet audio distance \citep{kilgour19}, or the Fr\'echet ChemNet distance \citep{preuer18}.
 In the early 1990s, Alt and Godau were the first to apply the Fr\'echet distance in measuring the similarity of polygonal curves \citep{alt92,alt95}.
-However, without strong assumption about the polygonal curves, the distance cannot be calculated directly here but can be formulated as a dynamic programming problem.
-Finding efficient algorithms for estimating the Fr\'echet distance in this setting remains a vibrant area of research \citep{aronov06,avraham14,agarwal14,bringmann19}.
-Our contribution to this ongoing exploration is an efficient algorithm that is optimized to run fast on modern hardware.
+However, there is no explicit way to find the Fr\'echet distance in this setting directly.
+Instead, the problem can be solved with dynamic programming and finding efficient algorithms remains a vibrant area of research \citep{aronov06,avraham14,agarwal14,bringmann19}.
+Our contribution to this ongoing exploration is an efficient algorithm for the discrete Fr\'echet distance that is optimized to run fast on modern hardware.
+In particular, we reformulate the recursive algorithm proposed by \citet{eiter94} as an iterative, branchless algorithm and reduce its quadratic memory requirement to a linear one.
+Our solution can be vectorized to take full advantage of modern CPU architectures.
 
-\subsection{The Discrete Fr\'echet Distance}
+The remainder of this paper is structured as follows:
+First, we describe the continuous and discrete Fr\'echet distance for polygonal curves in Sec.~\ref{sec:frechet}.
+In Sec.~\ref{sec:fast} we present our improved algorithm.
+Subsequently, we discuss its relation to dynamic time wrapping (DTW) and the Levenshtein distance in Sec.~\ref{sec:dtw_levenshtein}.
+Finally, we outline how our solution can be parallelized in Sec.~\ref{sec:parallel}.
+
+\section{The Fr\'echet Distance}
+\label{sec:frechet}
 Formally, let $p$ and $q$ be two curves in a metric space $\mathcal{S}$.
 Then, the (continuous) Fr\'echet distance $\delta_F$ between $p$ and $q$ is defined as the infimum over all possible continuous, non-decreasing, surjections $\alpha: [0, 1] \to [0, 1]$ and $\beta: [0, 1] \to [0, 1]$ of the maximum over all $t \in [0, 1]$ of the distance in $\mathcal{S}$ between $p(\alpha(t))$ and $q(\beta(t))$,
 \begin{equation*}
@@ -16,20 +25,20 @@ Then, the (continuous) Fr\'echet distance $\delta_F$ between $p$ and $q$ is defi
 where $\| \bullet \|_\mathcal{S}$ is the distance function of $\mathcal{S}$.
 Informally, this measure is often described as the minimal leash length, measured by $\| \bullet \|_\mathcal{S}$, of a man walking his dog if both are moving on trajectories $p(\alpha(t))$ and $q(\beta(t))$, respectively, where $t$ is interpreted as a measure of time.
 In this interpretation the restriction that $\alpha(t)$ and $\beta(t)$ be non-decreasing means that neither the dog nor its owner can backtrack.
-Relaxing this constraint, defines the so-called weak Fr\'echet distance \citep{alt95} that is always greater or equal than the Hausdorff distance, yet smaller or equal than the (continuous) Fr\'echet distance.
+Adding this constraint makes the Fr\'echet distance unconditionally stronger than the Hausdorff distance in the following sense: the Fr\'echet distance between two curves is always greater or equal than their corresponding Hausdorff distance.
 
 Although non-straightforward to compute, the Fr\'echet distance has been used successfully in various fields such as curve simplification \citep{agarwal05,bereg08,kreveld18,kerkhof19}, map-matching \citep{alt03a,driemel12} and clustering \citep{buchin08b,buchin19b,buchin19c}.
 The Fr\'echet distance also has applications in matching biological sequences \citep{wylie12}, analysing tracking data \citep{brakatsoulas05,buchin08a}, and matching coastline data \citep{mascret06}.
 In particular for clustering, a major advantage of the Fr\'echet distance is that it fulfills the triangle inequality and therefore is not only a distance measure but also a metric. 
-Other measures of curve similarity, such as dynamic time warping (DTW) \citep{vintsyuk68,sankoff83}, do not obey the triangle inequality which limits their application in practice.
+Other measures of curve similarity, such as DTW \citep{vintsyuk68,sankoff83}, do not obey the triangle inequality which limits their application in practice.
 
 Computing the Fr\'echet distance between two precise curves can be done in near-quadratic time \citep{agarwal14,alt95,buchin17}, and assuming the strong exponential time hypothesis, it cannot be computed or even approximated well in strongly subquadratic time unless SETH fails \citep{bringmann14,buchin19a}.
-However, even bringing down the complexity of robust algorithms close to a quadratic algorithm has proven to be challenging in practice \citep{bringmann19} and the proposed algorithms are often complex to implement.
-In particular, almost all of the analyses and applications of the continuous Fr\'echet distance either explicitly or implicitly rely on the Euclidean distance for $\| \bullet \|_\mathcal{S}$ which makes the corresponding pathing in \textit{free-space} a convex optimization problem \citep{alt92,alt95}.
+In practice, algorithms with a theoretical quadratic complexity often rely on certain pre-processing steps and are complex to implement in general \citep{bringmann19}.
+Furthermore, to the best of our knowledge, almost all of the analyses and applications of the continuous Fr\'echet distance either explicitly or implicitly rely on the Euclidean distance for $\| \bullet \|_\mathcal{S}$ which makes the corresponding pathing in \textit{free-space} a convex optimization problem \citep{alt92,alt95}.
 Extending the results to more general metrics is not straightforward as one quickly looses auxiliary properties such as the convexity in \textit{free-space}.
 
 One way to overcome these challenges is to estimate the continuous Fr\'echet distance of polygonal curves with a discrete approximation:
-\citet{eiter94} defined the discrete Fr\'echet distance $\delta_{dF}$ between two $D$-dimensional polygonal chains $p \in \mathbb{R}^{P \times D}$ and $q \in \mathbb{R}^{Q \times D}$, proposed the simple algorithm Alg.~\ref{alg:vanilla} of complexity $\mathcal{O}(D\,P\,Q)$, and showed that the difference between the continuous Fr\'echet distance and its discrete variant is bound by the sample width of the trajectories,
+\citet{eiter94} defined the discrete Fr\'echet distance $\delta_{dF}$ between two $D$-dimensional polygonal chains $p \in \mathbb{R}^{P \times D}$ and $q \in \mathbb{R}^{Q \times D}$, proposed the simple algorithm~\ref{alg:vanilla} of complexity $\mathcal{O}(D\,P\,Q)$, and showed that the difference between the continuous Fr\'echet distance and its discrete variant is bound by the sample width of the trajectories,
 \begin{equation*}
     \delta_F(p, q) \;\le\; \delta_{dF}(p, q) \;\le\; \delta_F(p, q) + \max\{ \varepsilon_p, \varepsilon_q \},
 \end{equation*}
@@ -40,7 +49,7 @@ where $\varepsilon_p$ and $\varepsilon_q$ are the largest distance between adjac
     \label{alg:vanilla}
     \begin{algorithmic}[1]
         \Function{fr\'echet\_distance}{$p$: $\mathbb{R}^{P \times D}$, $q$: $\mathbb{R}^{Q \times D}$, $f$: $\mathbb{R}^D \times \mathbb{R}^D \mapsto \mathbb{R}$} $\to \mathbb{R}$
-            \State $M: \mathbb{R}^{P \times Q}$ $\gets -1$
+            \State $M: \mathbb{R}^{P \times Q}$ $\gets -1$ \label{alg:vanilla:M}
             \Statex
             \Function{eval}{$i: \mathbb{N}$, $j: \mathbb{N}$} $\to \mathbb{R}$
                 \If{$M_{ij} > -1$}
@@ -48,13 +57,13 @@ where $\varepsilon_p$ and $\varepsilon_q$ are the largest distance between adjac
                 \EndIf
                 \Statex
                 \State $d: \mathbb{R}$ $\gets$ \Call{$f$}{$p_i, q_j$}
-                \If{$i = 1 \;\land\; j = 1$}
+                \If{$i = 1 \;\land\; j = 1$} \label{alg:vanilla:if1}
                     \State $M_{ij} \gets d$
-                \ElsIf{$i > 1 \;\land\; j = 1$}
+                \ElsIf{$i > 1 \;\land\; j = 1$} \label{alg:vanilla:if2}
                     \State $M_{ij} \gets \max\{\Call{eval}{i - 1, 1},\, d\}$
-                \ElsIf{$i = 1 \;\land\; j > 1$}
+                \ElsIf{$i = 1 \;\land\; j > 1$} \label{alg:vanilla:if3}
                     \State $M_{ij} \gets \max\{\Call{eval}{1, j - 1},\, d\}$
-                \Else
+                \Else \label{alg:vanilla:if4}
                     \State $M_{ij} \gets \max\{\min\{\Call{eval}{i - 1, j},\, \Call{eval}{i - 1, j - 1},\, \Call{eval}{i, j - 1}\},\, d\}$
                 \EndIf
                 \Statex
@@ -71,7 +80,47 @@ Arguably, for the latter utilizing the discrete Fr\'echet distance even makes mo
 Hence, if the continuous Fr\'echet distance is realized by an alpha-carbon atom and some other point which does not represent an atom, it is not meaningful biologically.
 Later, \citet{zhu07} extended this work and analyzed the protein local structural alignment problem using bounded discrete Fr\'echet distance.
 
+Although applied successfully in practice, the algorithm by \citet{eiter94} has three major disadvantages:
+First, the recursive formulation makes the algorithm impractical for larger curves and can overflow the stack quickly.
+Secondly, the algorithm needs to allocate a memory block $M$ of size $P \times Q$ on line~\ref{alg:vanilla:M}.
+For large curves this allocation is slow, will likely pollute cache lines, and potentially constrains parallelization due to limited memory resources.
+Thirdly, the explicit branching points on lines~\ref{alg:vanilla:if1}, \ref{alg:vanilla:if2}, \ref{alg:vanilla:if3} and \ref{alg:vanilla:if4} put stress on the branch predictor and make it hard to reformulate the algorithm for an effective use of \textit{single instruction, multiple data} (SIMD) or \textit{single instruction, multiple threads} (SIMT) aware hardware.
+
 \section{An Iterative, Linear-Memory Algorithm}
+\label{sec:fast}
+In this section we introduce a new algorithm for finding the discrete Fr\'echet distance between two polygonal curves $p \in \mathbb{R}^{P \times D}$ and $q \in \mathbb{R}^{Q \times D}$.
+Our algorithm uses scan and fold operators using a notation borrowed from \citet{iverson62,iverson79} in lines~\ref{alg:fast:scan} and \ref{alg:fast:fold}.
+
+\begin{theorem}[Fast Discrete Fr\'echet Algorithm]
+\label{thm:fast}
+Alg.~\ref{alg:fast} calculates the discrete Fr\'echet distance given a distance matrix $d \in \mathbb{R}^{P \times Q}$.
+The algorithms iteratively consumes the rows of $d$ such that each row, or even each element, can be computed lazily.
+The memory requirement is therefore reduced to $\mathcal{O}(Q)$.
+The complexity of Alg.~\ref{alg:fast} is $\mathcal{O}(P \, Q)$ is $d$ is precomputed and $\mathcal{O}(D \, P \, Q)$ if $d$ is evaluated lazily.
+
+\begin{algorithm}
+    \caption{A fast discrete Fr\'echet distance algorithm using fold and scan operators.}
+    \label{alg:fast}
+    \begin{algorithmic}[1]
+        \Function{fr\'echet\_maxmin}{$a: \mathbb{R}$, $x: \mathbb{R}^2$} $\to \mathbb{R}$
+            \State \Return $\max\{ \min\{ a,\, x_1 \},\, x_2 \}$
+        \EndFunction
+        \Statex
+        \Function{fr\'echet\_next}{$a: \mathbb{R}^{Q+1}$, $x: \mathbb{R}^{Q}$} $\to \mathbb{R}^{Q+1}$
+            \State $u: \mathbb{R}^Q \gets \min\{ a_{1 \ldots Q},\, a_{2 \ldots Q+1} \}$
+            \State \Return \Call{fr\'echet\_maxmin$\backslash$}{$\infty,\, [u \;|\; x]$} \Comment{Scan using \Call{fr\'echet\_maxmin}{}} \label{alg:fast:scan}
+        \EndFunction
+        \Statex
+        \Function{fr\'echet\_distance}{$d: \mathbb{R}^{P \times Q}$} $\to \mathbb{R}$
+            \State $v: \mathbb{R}^{Q+1} \gets \max\!\backslash(0, d_1)$
+            \State $v_1 \gets \infty$
+            \Statex
+            \State \Return $[$\Call{fr\'echet\_next$/$}{$v, d_{2 \ldots P}$}$]_{Q+1}$ \Comment{Fold using \Call{fr\'echet\_next}{}} \label{alg:fast:fold}
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+\end{theorem}
+
 \citep{agarwal14}: Computing the discrete Fr\'echet distance in subquadratic time. ($\overset{?}{\sim}$ linear search faster than more educated approaches on modern hardware if input data is small). The given \textit{subquadratic} complexity is only slightly better than quadratic.
 
 \citep{aronov06}: Approximation of discrete Fr\'echet distance. Is \citep{avraham14} related?
@@ -91,32 +140,8 @@ Alg.~\ref{alg:vanilla}: speed-up by finding stopping criterion for recursion. If
 
 Our contribution: complementary to \citet{bringmann19}: \textit{Walking the Frog Fast in Practice}
 
-\begin{theorem}[Theorem Foobar]
-\label{thm:scan}
 
-\begin{algorithm}
-    \caption{Fold/Scan}
-    \begin{algorithmic}[1]
-        \Function{fr\'echet\_maxmin}{$a: \mathbb{R}$, $x: \mathbb{R}^2$} $\to \mathbb{R}$
-            \State \Return $\max\{ \min\{ a,\, x_1 \},\, x_2 \}$
-        \EndFunction
-        \Statex
-        \Function{fr\'echet\_next}{$a: \mathbb{R}^{Q+1}$, $x: \mathbb{R}^{Q}$} $\to \mathbb{R}^{Q+1}$
-            \State $u: \mathbb{R}^Q \gets \min\{ a_{1 \ldots Q},\, a_{2 \ldots Q+1} \}$
-            \State \Return \Call{fr\'echet\_maxmin$\backslash$}{$\infty,\, [u \;|\; x]$}
-        \EndFunction
-        \Statex
-        \Function{fr\'echet\_distance}{$d: \mathbb{R}^{P \times Q}$} $\to \mathbb{R}$
-            \State $v: \mathbb{R}^{Q+1} \gets \max\!\backslash(0, d_1)$
-            \State $v_1 \gets \infty$
-            \Statex
-            \State \Return $[$\Call{fr\'echet\_next$/$}{$v, d_{2 \ldots P}$}$]_{Q+1}$
-        \EndFunction
-    \end{algorithmic}
-\end{algorithm}
-\end{theorem}
-
-\begin{proof}[Proof of Theorem~\ref{thm:scan}]
+\begin{proof}[Proof of Theorem~\ref{thm:fast}]
 \begin{algorithm}
     \caption{No recursion}
     \label{alg:no_recursion}
@@ -169,6 +194,7 @@ Our contribution: complementary to \citet{bringmann19}: \textit{Walking the Frog
 \end{proof}
 
 \section{DTW and the Levenshtein Distance}
+\label{sec:dtw_levenshtein}
 Fr\'echet: \textit{metric} result / type of $d$ has to be a set with a \textit{total preorder} that induces min/max. Fr\'echet algorithm is a search algorithm.
 
 In contrast to other measures of curve similarity, such as dynamic time warping (DTW) \citep{vintsyuk68,sankoff83} or the average Fr\'echet distance \citep{brakatsoulas05}, the discrete and continuous Fr\'echet distance fulfill the triangle inequality 
@@ -229,6 +255,7 @@ Levenshtein: \textit{metric} is a binary set. In algorithm True is matched with 
 \end{algorithm}
 
 \section{Parallel Implementations}
+\label{sec:parallel}
 Recently there has been some work on estimating Fr\'echet distances for uncertain curves. \citet{buchin23} shows that ... We note that in particular for the problem of finding approximations for the expected Fr\'echet distance when the vertices are either indecisive or even only implicitly given by their distribution function, our fast implementation might leverages MC approaches. + MC sampling perfectly befits the SIMD implementation! (For indecisive case: MC even allows assignment of probabilities to each point)
 Work on Fr\'echet distance for uncertain curves, \textbf{e.g.}\footnote{there are more articles by Buchin about this, but there are not easy to cite} \citep{buchin23}: Given an uncertain curve and a second (certain or uncertain) curve, we seek to compute the lower and upper bound Fr\'echet distance, which are the minimum and maximum Fr\'echet distance for any realisations of the curves.
 We prove that both problems are NP-hard for the Fr\'echet distance in several uncertainty models, and that the upper bound problem remains hard for the discrete Fr\'echet distance.
