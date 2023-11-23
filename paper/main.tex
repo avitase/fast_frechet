@@ -38,7 +38,7 @@ Furthermore, to the best of our knowledge, almost all of the analyses and applic
 Extending the results to more general metrics is not straightforward as one quickly looses auxiliary properties such as the convexity in \textit{free-space}.
 
 One way to overcome these challenges is to estimate the continuous Fr\'echet distance of polygonal curves with a discrete approximation:
-\citet{eiter94} defined the discrete Fr\'echet distance $\delta_{dF}$ between two $D$-dimensional polygonal chains $p \in \mathbb{R}^{P \times D}$ and $q \in \mathbb{R}^{Q \times D}$, proposed the simple algorithm~\ref{alg:vanilla} of complexity $\mathcal{O}(D\,P\,Q)$, and showed that the difference between the continuous Fr\'echet distance and its discrete variant is bound by the sample width of the trajectories,
+\citet{eiter94} defined the discrete Fr\'echet distance $\delta_{dF}$ between two $D$-dimensional polygonal chains $p \in \mathbb{R}^{P \times D}$ and $q \in \mathbb{R}^{Q \times D}$, proposed the simple algorithm~\ref{alg:vanilla} of complexity $\mathcal{O}(D'PQ)$, where $D'$ is the complexity of evaluating $f$, and showed that the difference between the continuous Fr\'echet distance and its discrete variant is bound by the sample width of the trajectories,
 \begin{equation*}
     \delta_F(p, q) \;\le\; \delta_{dF}(p, q) \;\le\; \delta_F(p, q) + \max\{ \varepsilon_p, \varepsilon_q \},
 \end{equation*}
@@ -96,7 +96,7 @@ Our algorithm uses scan and fold operators using a notation borrowed from \citet
 Alg.~\ref{alg:fast} calculates the discrete Fr\'echet distance given a distance matrix $d \in \mathbb{R}^{P \times Q}$.
 The algorithms iteratively consumes the rows of $d$ such that each row, or even each element, can be computed lazily.
 The memory requirement is therefore reduced to $\mathcal{O}(Q)$.
-The complexity of Alg.~\ref{alg:fast} is $\mathcal{O}(P \, Q)$ is $d$ is precomputed and $\mathcal{O}(D \, P \, Q)$ if $d$ is evaluated lazily.
+The complexity of Alg.~\ref{alg:fast} is $\mathcal{O}(PQ)$ if $d$ is precomputed and $\mathcal{O}(D'PQ)$ if $d$ is evaluated lazily, where $D'$ is the complexity of evaluating a single element of $d$.
 
 \begin{algorithm}
     \caption{A fast discrete Fr\'echet distance algorithm using fold and scan operators.}
