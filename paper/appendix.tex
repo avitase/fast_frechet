@@ -1,6 +1,6 @@
 \section{Scan and Fold}
 \begin{algorithm}
-    \caption{Scan: from \citep{iverson62,iverson79}}
+    \caption{Scan operator for a binary function $f: \mathcal{T}_2 \times \mathcal{T}_1 \to \mathcal{T}_2$. The notation of using a backslash is borrowed from \citet{iverson62,iverson79}. Note that we prepend the initial value to the returned sequence.}
     \label{alg:scan}
     \begin{algorithmic}[1]
         \Function{$[f: \mathcal{T}_2 \times \mathcal{T}_1 \to \mathcal{T}_2]\backslash$}{$t_0: \mathcal{T}_2$, $x: \mathcal{T}_1^N$} $\to \mathcal{T}_2^{N+1}$
@@ -19,7 +19,7 @@
 \end{algorithm}
 
 \begin{algorithm}
-    \caption{Fold: from \citep{iverson62,iverson79}}
+    \caption{Fold operator for a binary function $f: \mathcal{T}_2 \times \mathcal{T}_1 \to \mathcal{T}_2$. The notation of using a slash is borrowed from \citet{iverson62,iverson79}.}
     \label{alg:fold}
     \begin{algorithmic}[1]
         \Function{$[f: \mathcal{T}_2 \times \mathcal{T}_1 \to \mathcal{T}_2]/$}{$t_0: \mathcal{T}_2$, $x: \mathcal{T}_1^N$} $\to \mathcal{T}_2$

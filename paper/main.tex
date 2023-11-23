@@ -89,13 +89,14 @@ Thirdly, the explicit branching points on lines~\ref{alg:vanilla:if1}, \ref{alg:
 \section{An Iterative, Linear-Memory Algorithm}
 \label{sec:fast}
 In this section we introduce a new algorithm for finding the discrete Fr\'echet distance between two polygonal curves $p \in \mathbb{R}^{P \times D}$ and $q \in \mathbb{R}^{Q \times D}$.
-Our algorithm uses scan and fold operators using a notation borrowed from \citet{iverson62,iverson79} in lines~\ref{alg:fast:scan} and \ref{alg:fast:fold}.
+Our algorithm uses fold operators for the binary functions \textsc{fr\'echet\_maxmin} and $\max$ in lines \ref{alg:fast:scan1} and \ref{alg:fast:scan2}, and a scan operator for the binary function \textsc{fr\'echet\_next} in line~\ref{alg:fast:fold}, where we borrowed the notation for the operators, $/$ and $\backslash$, from \citet{iverson62,iverson79}.
+In particular, note that our scan operator prepends the initial value ($\infty$ and $0$ in lines \ref{alg:fast:scan1} and \ref{alg:fast:scan2}, respectively) as the first element to the returned sequence.
+Pseudocodes for both operators are shown in the appendix in Alg.~\ref{alg:scan} and Alg.~\ref{alg:fold}.
 
 \begin{theorem}[Fast Discrete Fr\'echet Algorithm]
 \label{thm:fast}
 Alg.~\ref{alg:fast} calculates the discrete Fr\'echet distance given a distance matrix $d \in \mathbb{R}^{P \times Q}$.
-The algorithms iteratively consumes the rows of $d$ such that each row, or even each element, can be computed lazily.
-The memory requirement is therefore reduced to $\mathcal{O}(Q)$.
+The algorithms iteratively consumes the rows of $d$ such that each row, or even each element, can be computed lazily; the memory requirement is therefore reduced to $\mathcal{O}(Q)$.
 The complexity of Alg.~\ref{alg:fast} is $\mathcal{O}(PQ)$ if $d$ is precomputed and $\mathcal{O}(D'PQ)$ if $d$ is evaluated lazily, where $D'$ is the complexity of evaluating a single element of $d$.
 
 \begin{algorithm}
@@ -108,11 +109,11 @@ The complexity of Alg.~\ref{alg:fast} is $\mathcal{O}(PQ)$ if $d$ is precomputed
         \Statex
         \Function{fr\'echet\_next}{$a: \mathbb{R}^{Q+1}$, $x: \mathbb{R}^{Q}$} $\to \mathbb{R}^{Q+1}$
             \State $u: \mathbb{R}^Q \gets \min\{ a_{1 \ldots Q},\, a_{2 \ldots Q+1} \}$
-            \State \Return \Call{fr\'echet\_maxmin$\backslash$}{$\infty,\, [u \;|\; x]$} \Comment{Scan using \Call{fr\'echet\_maxmin}{}} \label{alg:fast:scan}
+            \State \Return \Call{fr\'echet\_maxmin$\backslash$}{$\infty,\, [u \;|\; x]$} \Comment{Scan using \Call{fr\'echet\_maxmin}{}} \label{alg:fast:scan1}
         \EndFunction
         \Statex
         \Function{fr\'echet\_distance}{$d: \mathbb{R}^{P \times Q}$} $\to \mathbb{R}$
-            \State $v: \mathbb{R}^{Q+1} \gets \max\!\backslash(0, d_1)$
+            \State $v: \mathbb{R}^{Q+1} \gets \max\!\backslash(0, d_1)$ \Comment{Scan using $\max$} \label{alg:fast:scan2}
             \State $v_1 \gets \infty$
             \Statex
             \State \Return $[$\Call{fr\'echet\_next$/$}{$v, d_{2 \ldots P}$}$]_{Q+1}$ \Comment{Fold using \Call{fr\'echet\_next}{}} \label{alg:fast:fold}
@@ -121,27 +122,10 @@ The complexity of Alg.~\ref{alg:fast} is $\mathcal{O}(PQ)$ if $d$ is precomputed
 \end{algorithm}
 \end{theorem}
 
-\citep{agarwal14}: Computing the discrete Fr\'echet distance in subquadratic time. ($\overset{?}{\sim}$ linear search faster than more educated approaches on modern hardware if input data is small). The given \textit{subquadratic} complexity is only slightly better than quadratic.
-
-\citep{aronov06}: Approximation of discrete Fr\'echet distance. Is \citep{avraham14} related?
-
-Later, Aronov et al.\ presented efficient approximation algorithms for computing
-the discrete Fr\'echet distance of two natural classes of curves: $\kappa$-bounded curves and backbone curves \citep{aronov06}.
-They also proposed a pseudo-output-sensitive algorithm for computing the discrete Fr\'echet distance exactly.
-
-\citep{ahn10}'s algorithm is based on a decision algorithm where the algorithm iterated in the inner-loop is a close adaptation of \citep{eiter94}.
-They already use a matrix-formulation w/o recursion and they have eliminated most branches.
-
-$\ldots$ Eventhough the Fr\'echet distance can be calculated faster for several restricted versions \citep{driemel12,gudmundsson18,buchin10,maheshwari11} $\ldots$ our thing works in general and for any metric!
-
-Alg.~\ref{alg:vanilla}: speed-up by finding stopping criterion for recursion. If $d_{ij} \ge d_{\alpha\beta} \forall \alpha \le i \land \beta \le j$ recursion can stop. Problem: How to find w/o a full search. In a sense, Alg.~\ref{alg:no_recursion} solves this issue with a bottom-up approach.
-
-\textit{Stress that our contribution doesn't make any assumptions about the metric or trajectory properties (e.g. Sakoe-Chiba bands) and scaling to higher dimensions only depends on the metric.}
-
-Our contribution: complementary to \citet{bringmann19}: \textit{Walking the Frog Fast in Practice}
-
-
 \begin{proof}[Proof of Theorem~\ref{thm:fast}]
+In order to prove Theorem~\ref{thm:fast} we simply rewrite Alg.~\ref{alg:vanilla} using invariants until we reach at Alg.~\ref{alg:fast}.
+Since we only use invariants the runtime complexity of Alg.~\ref{alg:fast} is the same as the one from Alg.~\ref{alg:vanilla}; the memory requirement can be read of directly from Alg.~\ref{alg:fast}.
+
 \begin{algorithm}
     \caption{No recursion}
     \label{alg:no_recursion}
@@ -192,6 +176,27 @@ Our contribution: complementary to \citet{bringmann19}: \textit{Walking the Frog
     \end{algorithmic}
 \end{algorithm}
 \end{proof}
+
+\citep{agarwal14}: Computing the discrete Fr\'echet distance in subquadratic time. ($\overset{?}{\sim}$ linear search faster than more educated approaches on modern hardware if input data is small). The given \textit{subquadratic} complexity is only slightly better than quadratic.
+
+\citep{aronov06}: Approximation of discrete Fr\'echet distance. Is \citep{avraham14} related?
+
+Later, Aronov et al.\ presented efficient approximation algorithms for computing
+the discrete Fr\'echet distance of two natural classes of curves: $\kappa$-bounded curves and backbone curves \citep{aronov06}.
+They also proposed a pseudo-output-sensitive algorithm for computing the discrete Fr\'echet distance exactly.
+
+\citep{ahn10}'s algorithm is based on a decision algorithm where the algorithm iterated in the inner-loop is a close adaptation of \citep{eiter94}.
+They already use a matrix-formulation w/o recursion and they have eliminated most branches.
+
+$\ldots$ Eventhough the Fr\'echet distance can be calculated faster for several restricted versions \citep{driemel12,gudmundsson18,buchin10,maheshwari11} $\ldots$ our thing works in general and for any metric!
+
+Alg.~\ref{alg:vanilla}: speed-up by finding stopping criterion for recursion. If $d_{ij} \ge d_{\alpha\beta} \forall \alpha \le i \land \beta \le j$ recursion can stop. Problem: How to find w/o a full search. In a sense, Alg.~\ref{alg:no_recursion} solves this issue with a bottom-up approach.
+
+\textit{Stress that our contribution doesn't make any assumptions about the metric or trajectory properties (e.g. Sakoe-Chiba bands) and scaling to higher dimensions only depends on the metric.}
+
+Our contribution: complementary to \citet{bringmann19}: \textit{Walking the Frog Fast in Practice}
+
+
 
 \section{DTW and the Levenshtein Distance}
 \label{sec:dtw_levenshtein}
