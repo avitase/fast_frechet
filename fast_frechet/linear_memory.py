@@ -5,14 +5,15 @@ def frechet_distance(p, q, metric):
     P = p.shape[0]
     Q = q.shape[0]
 
-    v = np.maximum.accumulate(metric(p[0], q))
-    v = np.insert(v, 0, np.inf)
+    v = metric(p[0], q)
+    v = np.maximum.accumulate(v)
 
     for i in range(1, P):
         u = np.minimum(v[:-1], v[1:])
-        d = metric(p[i], q)
 
-        for j in range(Q):
-            v[j + 1] = max(min(v[j], u[j]), d[j])
+        v[0] = max(v[0], metric(p[i], q[0]))
+        v[1:] = metric(p[i], q[1:])
+        for j in range(1, Q):
+            v[j] = max(min(v[j - 1], u[j - 1]), v[j])
 
-    return v[Q]
+    return v[-1]

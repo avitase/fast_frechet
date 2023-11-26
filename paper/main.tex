@@ -18,9 +18,9 @@ Finally, we outline how our solution can be parallelized in Sec.~\ref{sec:parall
 \section{The Fr\'echet Distance}
 \label{sec:frechet}
 Formally, let $p$ and $q$ be two curves in a metric space $\mathcal{S}$.
-Then, the (continuous) Fr\'echet distance $\delta_F$ between $p$ and $q$ is defined as the infimum over all possible continuous, non-decreasing, surjections $\alpha: [0, 1] \to [0, 1]$ and $\beta: [0, 1] \to [0, 1]$ of the maximum over all $t \in [0, 1]$ of the distance in $\mathcal{S}$ between $p(\alpha(t))$ and $q(\beta(t))$,
+Then, the (continuous) Fr\'echet distance $\delta_\mathrm{F}$ between $p$ and $q$ is defined as the infimum over all possible continuous, non-decreasing, surjections $\alpha: [0, 1] \to [0, 1]$ and $\beta: [0, 1] \to [0, 1]$ of the maximum over all $t \in [0, 1]$ of the distance in $\mathcal{S}$ between $p(\alpha(t))$ and $q(\beta(t))$,
 \begin{equation*}
-    \delta_F(p, q) = \inf_{\alpha,\beta} \; \max_{t \in [0, 1]} \left\| p(\alpha(t)) - q(\beta(t)) \right\|_\mathcal{S},
+    \delta_\mathrm{F}(p, q) = \inf_{\alpha,\beta} \; \max_{t \in [0, 1]} \left\| p(\alpha(t)) - q(\beta(t)) \right\|_\mathcal{S},
 \end{equation*}
 where $\| \bullet \|_\mathcal{S}$ is the distance function of $\mathcal{S}$.
 Informally, this measure is often described as the minimal leash length, measured by $\| \bullet \|_\mathcal{S}$, of a man walking his dog if both are moving on trajectories $p(\alpha(t))$ and $q(\beta(t))$, respectively, where $t$ is interpreted as a measure of time.
@@ -37,19 +37,23 @@ In practice, algorithms with a theoretical quadratic complexity often rely on ce
 Furthermore, to the best of our knowledge, almost all of the analyses and applications of the continuous Fr\'echet distance either explicitly or implicitly rely on the Euclidean distance for $\| \bullet \|_\mathcal{S}$ which makes the corresponding pathing in \textit{free-space} a convex optimization problem \citep{alt92,alt95}.
 Extending the results to more general metrics is not straightforward as one quickly looses auxiliary properties such as the convexity in \textit{free-space}.
 
-One way to overcome these challenges is to estimate the continuous Fr\'echet distance of polygonal curves with a discrete approximation:
-\citet{eiter94} defined the discrete Fr\'echet distance $\delta_{dF}$ between two $D$-dimensional polygonal chains $p \in \mathbb{R}^{P \times D}$ and $q \in \mathbb{R}^{Q \times D}$, proposed the simple algorithm~\ref{alg:vanilla} of complexity $\mathcal{O}(D'PQ)$, where $D'$ is the complexity of evaluating $f$, and showed that the difference between the continuous Fr\'echet distance and its discrete variant is bound by the sample width of the trajectories,
+One way to overcome these challenges is to estimate the continuous Fr\'echet distance of polygonal curves $\delta_\mathrm{F}$ with a discrete approximation $\delta_\mathrm{dF}$:
+Instead of taking all points of the (continuous) curves into account, the discrete Fr\'echet distance only includes a finite number of them.
+A typical choice for the set of the points is the set of vertices of the given polygonal curve itself.
+Informally, the discrete Fr\'echet distance can be thought of as the minimal leash length between two frogs \textit{jumping} between stones; during jumps, the leash is not taken into consideration.
+
+In 1994, \citet{eiter94} defined the discrete Fr\'echet distance $\delta_\mathrm{dF}$ between two $D$-dimensional polygonal chains $p \in \mathbb{R}^{P \times D}$ and $q \in \mathbb{R}^{Q \times D}$, proposed the simple algorithm~\ref{alg:vanilla} of complexity $\mathcal{O}(D'PQ)$, where $D'$ is the complexity of evaluating $f$, and showed that the difference between the continuous Fr\'echet distance and its discrete variant is bound by the sample width of the curves,
 \begin{equation*}
-    \delta_F(p, q) \;\le\; \delta_{dF}(p, q) \;\le\; \delta_F(p, q) + \max\{ \varepsilon_p, \varepsilon_q \},
+    \delta_\mathrm{F}(p, q) \;\le\; \delta_\mathrm{dF}(p, q) \;\le\; \delta_\mathrm{F}(p, q) + \max\{ \varepsilon_p, \varepsilon_q \},
 \end{equation*}
-where $\varepsilon_p$ and $\varepsilon_q$ are the largest distance between adjacent points on $p$ and $q$, respectively.
+where $\varepsilon_p$ and $\varepsilon_q$ are the largest distance between adjacent points (the \textit{stones}) on $p$ and $q$, respectively.
 
 \begin{algorithm}
     \caption{The original algorithm for calculating the discrete Fr\'echet distance as proposed by \citet{eiter94} for a generic distance measure $f: \mathbb{R}^D \times \mathbb{R}^D \mapsto \mathbb{R}$.}
     \label{alg:vanilla}
     \begin{algorithmic}[1]
         \Function{fr\'echet\_distance}{$p$: $\mathbb{R}^{P \times D}$, $q$: $\mathbb{R}^{Q \times D}$, $f$: $\mathbb{R}^D \times \mathbb{R}^D \mapsto \mathbb{R}$} $\to \mathbb{R}$
-            \State $M: \mathbb{R}^{P \times Q}$ $\gets -1$ \label{alg:vanilla:M}
+            \State $M: \mathbb{R}^{P \times Q}$ \label{alg:vanilla:M}
             \Statex
             \Function{eval}{$i: \mathbb{N}$, $j: \mathbb{N}$} $\to \mathbb{R}$
                 \If{$M_{ij} > -1$}
@@ -70,7 +74,7 @@ where $\varepsilon_p$ and $\varepsilon_q$ are the largest distance between adjac
                 \State \Return $M_{ij}$
             \EndFunction
             \Statex
-            \State \Return \Call{eval}{$P - 1, Q - 1$}
+            \State \Return \Call{eval}{$P, Q$}
         \EndFunction
     \end{algorithmic}
 \end{algorithm}
@@ -81,7 +85,7 @@ Hence, if the continuous Fr\'echet distance is realized by an alpha-carbon atom 
 Later, \citet{zhu07} extended this work and analyzed the protein local structural alignment problem using bounded discrete Fr\'echet distance.
 
 Although applied successfully in practice, the algorithm by \citet{eiter94} has three major disadvantages:
-First, the recursive formulation makes the algorithm impractical for larger curves and can overflow the stack quickly.
+First, the recursive formulation makes the algorithm impractical for larger curves as the recursive calls cannot be elided, e.g., by tail recursions, and can thus overflow the stack quickly.
 Secondly, the algorithm needs to allocate a memory block $M$ of size $P \times Q$ on line~\ref{alg:vanilla:M}.
 For large curves this allocation is slow, will likely pollute cache lines, and potentially constrains parallelization due to limited memory resources.
 Thirdly, the explicit branching points on lines~\ref{alg:vanilla:if1}, \ref{alg:vanilla:if2}, \ref{alg:vanilla:if3} and \ref{alg:vanilla:if4} put stress on the branch predictor and make it hard to reformulate the algorithm for an effective use of \textit{single instruction, multiple data} (SIMD) or \textit{single instruction, multiple threads} (SIMT) aware hardware.
@@ -89,8 +93,8 @@ Thirdly, the explicit branching points on lines~\ref{alg:vanilla:if1}, \ref{alg:
 \section{An Iterative, Linear-Memory Algorithm}
 \label{sec:fast}
 In this section we introduce a new algorithm for finding the discrete Fr\'echet distance between two polygonal curves $p \in \mathbb{R}^{P \times D}$ and $q \in \mathbb{R}^{Q \times D}$.
-Our algorithm uses fold operators for the binary functions \textsc{fr\'echet\_maxmin} and $\max$ in lines \ref{alg:fast:scan1} and \ref{alg:fast:scan2}, and a scan operator for the binary function \textsc{fr\'echet\_next} in line~\ref{alg:fast:fold}, where we borrowed the notation for the operators, $/$ and $\backslash$, from \citet{iverson62,iverson79}.
-In particular, note that our scan operator prepends the initial value ($\infty$ and $0$ in lines \ref{alg:fast:scan1} and \ref{alg:fast:scan2}, respectively) as the first element to the returned sequence.
+Our algorithm uses (left) fold/reduce operators for the binary functions \textsc{fr\'echet\_maxmin} and $\max$ on lines \ref{alg:fast:scan1} and \ref{alg:fast:scan2}, and a (left) scan/accumulate operator for the binary function \textsc{fr\'echet\_next} on line~\ref{alg:fast:fold}, where we borrowed the notation for the operators, $/$ and $\backslash$, from \citet{iverson62,iverson79}.
+In particular, note that our scan operator prepends the initial value ($\infty$ and $0$ on lines \ref{alg:fast:scan1} and \ref{alg:fast:scan2}, respectively) as the first element to the returned sequence.
 Pseudocodes for both operators are shown in the appendix in Alg.~\ref{alg:scan} and Alg.~\ref{alg:fold}.
 
 \begin{theorem}[Fast Discrete Fr\'echet Algorithm]
@@ -107,48 +111,80 @@ The complexity of Alg.~\ref{alg:fast} is $\mathcal{O}(PQ)$ if $d$ is precomputed
             \State \Return $\max\{ \min\{ a,\, x_1 \},\, x_2 \}$
         \EndFunction
         \Statex
-        \Function{fr\'echet\_next}{$a: \mathbb{R}^{Q+1}$, $x: \mathbb{R}^{Q}$} $\to \mathbb{R}^{Q+1}$
-            \State $u: \mathbb{R}^Q \gets \min\{ a_{1 \ldots Q},\, a_{2 \ldots Q+1} \}$
-            \State \Return \Call{fr\'echet\_maxmin$\backslash$}{$\infty,\, [u \;|\; x]$} \Comment{Scan using \Call{fr\'echet\_maxmin}{}} \label{alg:fast:scan1}
+        \Function{fr\'echet\_next}{$a: \mathbb{R}^Q$, $x: \mathbb{R}^{Q}$} $\to \mathbb{R}^Q$
+            \State $u: \mathbb{R}^{Q-1} \gets \min\{ a_{1 \ldots Q},\, a_{2 \ldots Q+1} \}$
+            \State $v_1: \mathbb{R} \gets \max\{a_1, x_1\}$
+            \Statex
+            \State \Return \Call{fr\'echet\_maxmin$\backslash$}{$v_1,\, [u \;|\; x_{2 \ldots Q}]$} \Comment{Scan using \Call{fr\'echet\_maxmin}{}} \label{alg:fast:scan1}
         \EndFunction
         \Statex
-        \Function{fr\'echet\_distance}{$d: \mathbb{R}^{P \times Q}$} $\to \mathbb{R}$
-            \State $v: \mathbb{R}^{Q+1} \gets \max\!\backslash(0, d_1)$ \Comment{Scan using $\max$} \label{alg:fast:scan2}
-            \State $v_1 \gets \infty$
+        \Function{fr\'echet\_distance}{$p: \mathbb{R}^{P \times D}$, $q: \mathbb{R}^{Q \times D}$, $f: \mathbb{R}^D \times \mathbb{R}^D \mapsto \mathbb{R}$} $\to \mathbb{R}$
+            \State $v: \mathbb{R}^Q \gets \max\!\backslash(f(p_1, q_1), f(p_1, q_{2 \ldots Q})$ \Comment{Scan using $\max$} \label{alg:fast:scan2}
+            \State $d: \mathbb{R}^{(P-1) \times Q} \gets [f(p_2, q),\, \ldots,\, f(p_P, q)]$ \Comment{Evaluate rows lazily}
             \Statex
-            \State \Return $[$\Call{fr\'echet\_next$/$}{$v, d_{2 \ldots P}$}$]_{Q+1}$ \Comment{Fold using \Call{fr\'echet\_next}{}} \label{alg:fast:fold}
+            \State \Return $[$\Call{fr\'echet\_next$/$}{$v, d$}$]_Q$ \Comment{Fold using \Call{fr\'echet\_next}{}} \label{alg:fast:fold}
         \EndFunction
     \end{algorithmic}
 \end{algorithm}
 \end{theorem}
 
 \begin{proof}[Proof of Theorem~\ref{thm:fast}]
-In order to prove Theorem~\ref{thm:fast} we simply rewrite Alg.~\ref{alg:vanilla} using invariants until we reach at Alg.~\ref{alg:fast}.
-Since we only use invariants the runtime complexity of Alg.~\ref{alg:fast} is the same as the one from Alg.~\ref{alg:vanilla}; the memory requirement can be read of directly from Alg.~\ref{alg:fast}.
+In order to prove Theorem~\ref{thm:fast} we start by rewriting Alg.~\ref{alg:vanilla} and replace the recursive calls with two explicit iterations over the points in $p$ and $q$.
+Alg.~\ref{alg:vanilla} finds the discrete Fr\'echet distance between $p$ and $q$ \textit{top-down} by recursively solving the dynamic programming problem
+\begin{equation}
+    \label{eq:dynprogprob}
+    M_{ij} = \max\{ \min\{ M_{i-1,j}, M_{i-1,j-1}, M_{i,j-1} \}, d_{ij} \},
+\end{equation}
+where $\delta_\mathrm{dF} = M_{PQ}$.
+Alg.~\ref{alg:no_recursion} shows an algorithm that also solves Eq.~\eqref{eq:dynprogprob} but with a \textit{bottom-up} approach.
+The nested loops start at low indices and eventually accumulate the result in $M_{PQ}$ until $i=P$ and $j=Q$.
+In fact, at every point $M_{\alpha \beta}$ is the discrete Fr\'echet distance for the polygonal curves $p_i$ and $q_j$ with $i \in [1, \alpha]$ and $j \in [1, \beta]$, respectively.
+The complexity of this algorithm is $\mathcal{O}(PQ)$ if $d$ is given.
+
+TODO: change of signature
 
 \begin{algorithm}
     \caption{No recursion}
     \label{alg:no_recursion}
     \begin{algorithmic}[1]
         \Function{fr\'echet\_distance}{$p: \mathbb{R}^{P \times D}$, $q: \mathbb{R}^{Q \times D}$, $f: \mathbb{R}^D \times \mathbb{R}^D \mapsto \mathbb{R}$} $\to \mathbb{R}$
-            \State $M: \mathbb{R}^{P \times Q}$ $\gets -1$
+            \State $M: \mathbb{R}^{P \times Q}$
             \Statex
             \For{$i \gets 1,P$}
                 \For{$j \gets 1,Q$}
-                    \State $d: \mathbb{R}$ $\gets$ \Call{$f$}{$p_i, q_j$}
+                    \State $d: \mathbb{R} \gets f(p_i, q_j)$
+                    \Statex
                     \If{$i = 1 \;\land\; j = 1$}
-                        \State $M_{ij} \gets d$
+                        \State $M_{11} \gets d$
                     \ElsIf{$i > 1 \;\land\; j = 1$}
-                        \State $M_{ij} \gets \max\{M_{i-1,1},\, d\}$
+                        \State $M_{i,1} \gets \max\{M_{i-1,1},\, d \}$
                     \ElsIf{$i = 1 \;\land\; j > 1$}
-                        \State $M_{ij} \gets \max\{M_{1,j-1},\, d\}$
+                        \State $M_{1,j} \gets \max\{M_{1,j-1},\, d \}$
                     \Else
-                        \State $M_{ij} \gets \max\{\min\{M_{i-1,j},\, M_{i-1,j-1},\, M_{i,j-1}\},\, d\}$
+                        \State $M_{ij} \gets \max\{\min\{M_{i-1,j},\, M_{i-1,j-1},\, M_{i,j-1}\},\, d \}$
                     \EndIf
                 \EndFor
             \EndFor
             \Statex
-            \State \Return $M_{P-1,Q-1}$   
+            \State \Return $M_{PQ}$   
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+    \caption{In-place}
+    \begin{algorithmic}[1]
+        \Function{fr\'echet\_distance}{$d: \mathbb{R}^{P \times Q}$} $\to \mathbb{R}$
+            \State $d_{:,1} \gets \max\!\backslash(d_{11}, d_{2 \ldots P,1})$
+            \State $d_{1,:} \gets \max\!\backslash(d_{11}, d_{1,2 \ldots Q})$
+            \Statex
+            \For{$i \gets 2,P$}
+                \For{$j \gets 2,Q$}
+                    \State $d_{ij} \gets \max\{\min\{d_{i-1,j},\, d_{i-1,j-1},\, d_{i,j-1}\},\, d_{ij} \}$
+                \EndFor
+            \EndFor
+            \Statex
+            \State \Return $d_{PQ}$   
         \EndFunction
     \end{algorithmic}
 \end{algorithm}
@@ -157,21 +193,19 @@ Since we only use invariants the runtime complexity of Alg.~\ref{alg:fast} is th
     \caption{Linear memory}
     \begin{algorithmic}[1]
         \Function{fr\'echet\_distance}{$p: \mathbb{R}^{P \times D}$, $q: \mathbb{R}^{Q \times D}$, $f: \mathbb{R}^D \times \mathbb{R}^D \mapsto \mathbb{R}$} $\to \mathbb{R}$
-            \State $d_1: \mathbb{R}^Q \gets$ \Call{$f$}{$p_1, q$}
-            \Statex
-            \State $v: \mathbb{R}^{Q+1} \gets \max\!\backslash(0, d_1)$
-            \State $v_1 \gets \infty$
+            \State $v: \mathbb{R}^Q \gets \max\!\backslash(f(p_1, q_1), f(p_1, q_{2 \ldots Q}))$
             \Statex
             \For{$i \gets 2,P$}
-                \State $d_i: \mathbb{R}^Q \gets$ \Call{$f$}{$p_i, q$}
-                \State $u: \mathbb{R}^Q \gets \min\{ v_{1 \ldots Q},\, v_{2 \ldots Q+1} \}$
+                \State $u: \mathbb{R}^{Q-1} \gets \min\{ v_{1 \ldots Q-1},\, v_{2 \ldots Q} \}$
                 \Statex
-                \For{$j \gets 1,Q$}
-                    \State $v_{j+1} \gets \max\{ \min\{ v_j,\, u_j \},\, d_{ij} \}$
+                \State $v_1 \gets \max\{ v_1, f(p_i, q_1) \}$
+                \State $v_{2 \ldots Q} \gets f(p_i, q_{2 \ldots Q})$
+                \For{$j \gets 2,Q$}
+                    \State $v_j \gets \max\{ \min\{ u_{j-1},\, v_{j-1} \},\, v_j \}$ 
                 \EndFor
             \EndFor
             \Statex
-            \State \Return $v_{Q+1}$
+            \State \Return $v_Q$
         \EndFunction
     \end{algorithmic}
 \end{algorithm}

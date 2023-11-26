@@ -45,8 +45,8 @@ def main(test_batched):
     if not test_batched:
         for v in [
             no_recursion,
-            branchless,
             vectorized,
+            branchless,
             linear_memory,
             accumulate,
             reduce_accumulate,

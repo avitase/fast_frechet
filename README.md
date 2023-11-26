@@ -8,8 +8,8 @@ More precisely,
 
 1. [`vanilla`](fast_frechet/vanilla.py): The baseline implementation as proposed in [_Computing Discrete Fréchet Distance_ by T. Eiter and H. Mannila (1994)][vanilla]
 1. [`no_recursion`](fast_frechet/no_recursion.py): A formulation w/o recursion.
+1. [`vectorized`](fast_frechet/vectorized.py): A vectorized implementation that calculates the distance matrix within a single [NumPy](https://numpy.org/) call.
 1. [`branchless`](fast_frechet/branchless.py): A variant w/o branches.
-1. [`vectorized`](fast_frechet/vectorized.py): A vectorized implementation that hides some loop details behind [NumPy](https://numpy.org/) calls.
 1. [`linear_memory`](fast_frechet/linear_memory.py): This formulation reduces the quadratic memory footprint to a linear one.
 1. [`accumulate`](fast_frechet/accumulate.py): Formulation using a scan operation.
 1. [`reduce_accumulate`](fast_frechet/reduce_accumulate.py): Formulation using a fold operation.
@@ -47,12 +47,12 @@ For invoking the [benchmark script](fast_frechet/__main__.py), run:
 
 ```bash
 $ python fast_frechet
-        no_recursion:  756 ms
-          branchless:  723 ms
-          vectorized:  157 ms
-       linear_memory:  133 ms
-          accumulate:  101 ms
-   reduce_accumulate:  101 ms
+        no_recursion:  712 ms
+          vectorized:  210 ms
+          branchless:  188 ms
+       linear_memory:  125 ms
+          accumulate:  100 ms
+   reduce_accumulate:  100 ms
 ```
 (Note that we don't even try to benchmark the [`vanilla`](fast_frechet/vanilla.py) version here, as it already crashes for polygonal curves with a few hundred points due to its recursive nature.)
 

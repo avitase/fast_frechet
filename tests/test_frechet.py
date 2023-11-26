@@ -32,8 +32,8 @@ def generate_trajectory(n, *, rng):
     [
         vanilla,
         no_recursion,
-        branchless,
         vectorized,
+        branchless,
         linear_memory,
         accumulate,
         reduce_accumulate,
@@ -53,8 +53,8 @@ def test_simple_example(variant):
     "variant",
     [
         no_recursion,
-        branchless,
         vectorized,
+        branchless,
         linear_memory,
         accumulate,
         reduce_accumulate,

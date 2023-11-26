@@ -4,20 +4,21 @@ import numpy as np
 
 
 def frechet_maxmin(acc, x):
-    u, d = x
-    return max(min(acc, u), d)
+    v, d = x
+    return max(min(acc, v), d)
 
 
 def frechet_distance(p, q, metric):
     P = p.shape[0]
 
-    v = np.maximum.accumulate(metric(p[0], q))
-    v = np.insert(v, 0, np.inf)
+    v = metric(p[0], q)
+    v = np.maximum.accumulate(v)
 
     for i in range(1, P):
         u = np.minimum(v[:-1], v[1:])
-        d = metric(p[i], q)
 
-        v = list(accumulate(zip(u, d), frechet_maxmin, initial=np.inf))
+        v[0] = max(v[0], metric(p[i], q[0]))
+        v[1:] = metric(p[i], q[1:])
+        v = list(accumulate(zip(u, v[1:]), frechet_maxmin, initial=v[0]))
 
     return v[-1]
