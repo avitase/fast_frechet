@@ -88,7 +88,7 @@ Although applied successfully in practice, the algorithm by \citet{eiter94} has 
 First, the recursive formulation makes the algorithm impractical for larger curves as the recursive calls cannot be elided, e.g., by tail recursions, and can thus overflow the stack quickly.
 Secondly, the algorithm needs to allocate a memory block $M$ of size $P \times Q$ on line~\ref{alg:vanilla:M}.
 For large curves this allocation is slow, will likely pollute cache lines, and potentially constrains parallelization due to limited memory resources.
-Thirdly, the explicit branching points on lines~\ref{alg:vanilla:if1}, \ref{alg:vanilla:if2}, \ref{alg:vanilla:if3} and \ref{alg:vanilla:if4} put stress on the branch predictor and make it hard to reformulate the algorithm for an effective use of \textit{single instruction, multiple data} (SIMD) or \textit{single instruction, multiple threads} (SIMT) aware hardware.
+Thirdly, the explicit branching points on lines~\ref{alg:vanilla:if1}, \ref{alg:vanilla:if2}, \ref{alg:vanilla:if3} and \ref{alg:vanilla:if4} put stress on the branch predictor and make it hard to reformulate the algorithm for an effective use on \textit{single instruction, multiple data} (SIMD) or \textit{single instruction, multiple threads} (SIMT) architectures aware hardware without causing branch divergences.
 
 \section{An Iterative, Linear-Memory Algorithm}
 \label{sec:fast}
@@ -104,7 +104,7 @@ The algorithms iteratively consumes the rows of $d$ such that each row, or even 
 The complexity of Alg.~\ref{alg:fast} is $\mathcal{O}(PQ)$ if $d$ is precomputed and $\mathcal{O}(D'PQ)$ if $d$ is evaluated lazily, where $D'$ is the complexity of evaluating a single element of $d$.
 
 \begin{algorithm}
-    \caption{A fast discrete Fr\'echet distance algorithm using fold and scan operators.}
+    \caption{A fast discrete Fr\'echet distance algorithm using fold of \textsc{fr\'echet\_next} (line \ref{alg:fast:fold}) and scan of \textsc{fr\'echet\_maxmin} (line \ref{alg:fast:scan1}) and $\max$ (line \ref{alg:fast:scan2}).}
     \label{alg:fast}
     \begin{algorithmic}[1]
         \Function{fr\'echet\_maxmin}{$a: \mathbb{R}$, $x: \mathbb{R}^2$} $\to \mathbb{R}$
@@ -113,16 +113,14 @@ The complexity of Alg.~\ref{alg:fast} is $\mathcal{O}(PQ)$ if $d$ is precomputed
         \Statex
         \Function{fr\'echet\_next}{$a: \mathbb{R}^Q$, $x: \mathbb{R}^{Q}$} $\to \mathbb{R}^Q$
             \State $u: \mathbb{R}^{Q-1} \gets \min\{ a_{1 \ldots Q},\, a_{2 \ldots Q+1} \}$
-            \State $v_1: \mathbb{R} \gets \max\{a_1, x_1\}$
-            \Statex
-            \State \Return \Call{fr\'echet\_maxmin$\backslash$}{$v_1,\, [u \;|\; x_{2 \ldots Q}]$} \Comment{Scan using \Call{fr\'echet\_maxmin}{}} \label{alg:fast:scan1}
+            \State $v_\mathrm{init}: \mathbb{R} \gets \max\{a_1, x_1\}$
+            \State \Return \Call{fr\'echet\_maxmin$\backslash$}{$v_\mathrm{init},\, [u \;|\; x_{2 \ldots Q}]$} \label{alg:fast:scan1}
         \EndFunction
         \Statex
         \Function{fr\'echet\_distance}{$p: \mathbb{R}^{P \times D}$, $q: \mathbb{R}^{Q \times D}$, $f: \mathbb{R}^D \times \mathbb{R}^D \mapsto \mathbb{R}$} $\to \mathbb{R}$
-            \State $v: \mathbb{R}^Q \gets \max\!\backslash(f(p_1, q_1), f(p_1, q_{2 \ldots Q})$ \Comment{Scan using $\max$} \label{alg:fast:scan2}
-            \State $d: \mathbb{R}^{(P-1) \times Q} \gets [f(p_2, q),\, \ldots,\, f(p_P, q)]$ \Comment{Evaluate rows lazily}
-            \Statex
-            \State \Return $[$\Call{fr\'echet\_next$/$}{$v, d$}$]_Q$ \Comment{Fold using \Call{fr\'echet\_next}{}} \label{alg:fast:fold}
+            \State $v: \mathbb{R}^Q \gets \max\!\backslash(f(p_1, q_1), f(p_1, q_{2 \ldots Q}))$ \label{alg:fast:scan2}
+            \State $d: \mathbb{R}^{(P-1) \times Q} \gets [f(p_2, q),\, \ldots,\, f(p_P, q)]$
+            \State \Return $[$\Call{fr\'echet\_next$/$}{$v, d$}$]_Q$ \label{alg:fast:fold}
         \EndFunction
     \end{algorithmic}
 \end{algorithm}
@@ -199,9 +197,8 @@ TODO: change of signature
                 \State $u: \mathbb{R}^{Q-1} \gets \min\{ v_{1 \ldots Q-1},\, v_{2 \ldots Q} \}$
                 \Statex
                 \State $v_1 \gets \max\{ v_1, f(p_i, q_1) \}$
-                \State $v_{2 \ldots Q} \gets f(p_i, q_{2 \ldots Q})$
                 \For{$j \gets 2,Q$}
-                    \State $v_j \gets \max\{ \min\{ u_{j-1},\, v_{j-1} \},\, v_j \}$ 
+                    \State $v_j \gets \max\{ \min\{ u_{j-1},\, v_{j-1} \},\, f(p_i, q_j) \}$ 
                 \EndFor
             \EndFor
             \Statex
@@ -242,9 +239,11 @@ Levenshtein distance: introduced by Vladimir Levenshtein \citep{levenshtein65}, 
 
 Levenshtein: \textit{metric} is a binary set. In algorithm True is matched with $0$, and False with $\infty$. Levenshtein algorithm accumulates / counts rather than finds. Levenshtein has to have addition to deal with lack of ordering of metric. This transformation depends on context of accumulation and position in word. Open question: the context of the accumulation solely originates from the position in the word. Is there metric for the words within a word to make this explicit and make it a search algorithm?
 
+
+$\delta^{-1}_\mathfrak{C}: \mathfrak{C} \times \mathfrak{C} \mapsto \mathbb{N}$
 \begin{equation}
     \label{eq:levenshtein_metric}
-    \delta^{-1}: \mathfrak{C} \times \mathfrak{C} \mapsto \mathbb{N}, \quad (a, b) \overset{\delta^{-1}}{\longmapsto} \begin{cases}
+    \delta^{-1}_\mathfrak{C}(a, b) \;=\; \begin{cases}
         0 & \text{if } a = b, \\
         \infty & \text{else.}
     \end{cases}
@@ -257,16 +256,17 @@ Levenshtein: \textit{metric} is a binary set. In algorithm True is matched with 
             \State \Return $\max\{ \min\{ a,\, x_1 \},\, x_2 \}$
         \EndFunction
         \Statex
-        \Function{fr\'echet\_distance}{$d: \mathbb{R}^{P \times Q}$} $\to \mathbb{R}$
-            \State $v: \mathbb{R}^{Q+1} \gets \max\!\backslash(0, d_1)$
-            \State $v_1 \gets \infty$
+        \Function{fr\'echet\_distance}{$p: \mathbb{R}^{P \times D}$, $q: \mathbb{R}^{Q \times D}$, $f: \mathbb{R}^D \times \mathbb{R}^D \mapsto \mathbb{R}$} $\to \mathbb{R}$
+            \State $v: \mathbb{R}^Q \gets \max\!\backslash(f(p_1, q_1), f(p_1, q_{2 \ldots Q}))$
             \Statex
             \For{$i \gets 2,P$}
-                \State $u: \mathbb{R}^Q \gets \min\{ v_{1 \ldots Q},\, v_{2 \ldots Q+1} \}$
-                \State $v \gets$ \Call{fr\'echet\_maxmin$\backslash$}{$\infty,\, [u \;|\; d_i]$}
+                \State $u: \mathbb{R}^{Q-1} \gets \min\{ v_{1 \ldots Q-1},\, v_{2 \ldots Q} \}$
+                \Statex
+                \State $v_\mathrm{init} \gets \max\{ v_1, f(p_i, q_1) \}$
+                \State $v \gets$ \Call{fr\'echet\_maxmin$\backslash$}{$v_1,\, [u \;|\; f(p_i, q_{2 \ldots Q})]$}
             \EndFor
             \Statex
-            \State \Return $v_{Q+1}$
+            \State \Return $v_Q$
         \EndFunction
     \end{algorithmic}
 \end{algorithm}
@@ -278,14 +278,14 @@ Levenshtein: \textit{metric} is a binary set. In algorithm True is matched with 
             \State \Return $\min\{ \min\{a,\, x_1 \} + 1, x_2 \}$
         \EndFunction
         \Statex
-        \Function{levenshtein\_distance}{$d: \mathbb{N}^{P \times Q}$} $\to \mathbb{N}$
-            \State $v: \mathbb{N}^{Q+1}$
-            \State $v_1 \gets 1$
-            \State $v_{2 \ldots (Q + 1)} \gets \min\{1, d_1\} + [0, \ldots, (Q - 1)]$
+        \Function{levenshtein\_distance}{$p: \mathfrak{C}^P$, $q: \mathfrak{C}^Q$, $f: \mathfrak{C} \times \mathfrak{C} \mapsto \mathbb{N}$} $\to \mathbb{N}$
+            \State $v: \mathbb{N}^Q \gets \min\{1, f(p_1, q) \} + [0, \ldots, (Q - 1)]$
             \Statex
             \For{$i \gets 2,P$}
-                \State $u: \mathbb{N}^Q \gets \min\{ v_{1 \ldots Q},\, v_{2 \ldots Q+1} \}$
-                \State $v \gets$ \Call{levenshtein\_min$\backslash$}{$i+1,\, [u \;|\; d_i + v_{1 \ldots Q}]$} 
+                \State $u: \mathbb{N}^{Q-1} \gets \min\{ v_{1 \ldots Q-1},\, v_{2 \ldots Q} \}$
+                \Statex
+                \State $v_\mathrm{init} \gets 1 + \min\{ i, u_1, f(p_i, q_1) \}$
+                \State $v \gets$ \Call{levenshtein\_min$\backslash$}{$v_\mathrm{init},\, [u \;|\; f(p_i, q_{2 \ldots Q}) + v_{1 \ldots Q-1}]$} 
             \EndFor
             \Statex
             \State \Return $v_{Q+1}$
@@ -295,6 +295,8 @@ Levenshtein: \textit{metric} is a binary set. In algorithm True is matched with 
 
 \section{Parallel Implementations}
 \label{sec:parallel}
+$\ldots$ schedule $\ldots$
+
 Recently there has been some work on estimating Fr\'echet distances for uncertain curves. \citet{buchin23} shows that ... We note that in particular for the problem of finding approximations for the expected Fr\'echet distance when the vertices are either indecisive or even only implicitly given by their distribution function, our fast implementation might leverages MC approaches. + MC sampling perfectly befits the SIMD implementation! (For indecisive case: MC even allows assignment of probabilities to each point)
 Work on Fr\'echet distance for uncertain curves, \textbf{e.g.}\footnote{there are more articles by Buchin about this, but there are not easy to cite} \citep{buchin23}: Given an uncertain curve and a second (certain or uncertain) curve, we seek to compute the lower and upper bound Fr\'echet distance, which are the minimum and maximum Fr\'echet distance for any realisations of the curves.
 We prove that both problems are NP-hard for the Fr\'echet distance in several uncertainty models, and that the upper bound problem remains hard for the discrete Fr\'echet distance.

@@ -20,12 +20,12 @@ def levenshtein_distance(p, q):
     Q = len(q)
 
     v = np.minimum(1, metric(p[0], q)) + np.arange(Q)
-    v = np.insert(v, 0, 1)
 
     for i in range(1, P):
-        d = metric(p[i], q)
         u = np.minimum(v[:-1], v[1:])
+        d = metric(p[i], q)
 
-        v = list(accumulate(zip(u, d + v[:-1]), levenshtein_min, initial=i + 1))
+        init = 1 + min(1 + i, u[0], d[0])
+        v = list(accumulate(zip(u, d[1:] + v[:-1]), levenshtein_min, initial=init))
 
     return v[-1]
