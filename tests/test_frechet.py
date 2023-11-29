@@ -20,11 +20,15 @@ def metric(p, q):
     return dx**2 + dy**2
 
 
-def generate_trajectory(n, *, rng):
-    xy0 = rng.integers(-2, 2, size=(1, 2), endpoint=False)
-    dxy = rng.integers(-1, 1, size=(n, 2), endpoint=False)
-    xy = xy0 + np.cumsum(dxy, axis=0)
-    return xy.astype(np.float64)
+def generate_trajectory(n, *, dim, rng):
+    x0 = rng.integers(-2, 2, size=(1, dim), endpoint=False)
+    dx = rng.integers(-1, 1, size=(n, dim), endpoint=False)
+    x = x0 + np.cumsum(dx, axis=0)
+
+    if dim == 1:
+        x = x.flatten()
+
+    return x.astype(np.float64)
 
 
 @pytest.mark.parametrize(
@@ -61,16 +65,22 @@ def test_simple_example(variant):
     ],
 )
 @pytest.mark.parametrize("P,Q", [(2, 2), (3, 4), (9, 4)])
+@pytest.mark.parametrize("dim", [1, 2])
 @pytest.mark.parametrize("seed", range(100))
-def test_frechet(variant, P, Q, seed):
+def test_frechet(variant, P, Q, dim, seed):
     rng = np.random.default_rng(seed)
 
-    p = generate_trajectory(P, rng=rng)
-    q = generate_trajectory(Q, rng=rng)
+    p = generate_trajectory(P, dim=dim, rng=rng)
+    q = generate_trajectory(Q, dim=dim, rng=rng)
 
-    d1 = vanilla.frechet_distance(p, q, metric=metric)
-    d2 = variant.frechet_distance(p, q, metric=metric)
-    assert d1 == d2
+    f = metric if dim > 1 else lambda p, q: np.abs(p - q)
+    d_exp = vanilla.frechet_distance(p, q, metric=f)
+    assert d_exp == vanilla.frechet_distance(q, p, metric=f)
+
+    dpq = variant.frechet_distance(p, q, metric=f)
+    dqp = variant.frechet_distance(q, p, metric=f)
+    assert dpq == d_exp
+    assert dqp == d_exp
 
 
 @pytest.mark.parametrize("N,batch_size", [(1, 1), (2, 3), (3, 2), (20, 3)])

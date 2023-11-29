@@ -7,7 +7,8 @@ However, there is no explicit way to find the Fr\'echet distance in this setting
 Instead, the problem can be solved with dynamic programming and finding efficient algorithms remains a vibrant area of research \citep{aronov06,avraham14,agarwal14,bringmann19}.
 Our contribution to this ongoing exploration is an efficient algorithm for the discrete Fr\'echet distance that is optimized to run fast on modern hardware.
 In particular, we reformulate the recursive algorithm proposed by \citet{eiter94} as an iterative, branchless algorithm and reduce its quadratic memory requirement to a linear one.
-Our solution can be vectorized to take full advantage of modern CPU architectures.
+Our solution can be vectorized to take full advantage of modern CPU and GPU architectures.
+To the best of our knowledge, we are the first to comprehensively propose these modifications although it is possible that others---while only referring to \citet{eiter94}---are already using some of the modifications in practice without explicitly noting.
 
 The remainder of this paper is structured as follows:
 First, we describe the continuous and discrete Fr\'echet distance for polygonal curves in Sec.~\ref{sec:frechet}.
@@ -27,7 +28,7 @@ Informally, this measure is often described as the minimal leash length, measure
 In this interpretation the restriction that $\alpha(t)$ and $\beta(t)$ be non-decreasing means that neither the dog nor its owner can backtrack.
 Adding this constraint makes the Fr\'echet distance unconditionally stronger than the Hausdorff distance in the following sense: the Fr\'echet distance between two curves is always greater or equal than their corresponding Hausdorff distance.
 
-Although non-straightforward to compute, the Fr\'echet distance has been used successfully in various fields such as curve simplification \citep{agarwal05,bereg08,kreveld18,kerkhof19}, map-matching \citep{alt03a,driemel12} and clustering \citep{buchin08b,buchin19b,buchin19c}.
+Although non-straightforward to compute, the Fr\'echet distance has been used successfully in various fields such as curve simplification \citep{agarwal05,bereg08,kreveld18,kerkhof19}, map-matching \citep{alt03a,driemel12,sharma17} and clustering \citep{buchin08b,besse16,buchin19b,buchin19c}.
 The Fr\'echet distance also has applications in matching biological sequences \citep{wylie12}, analysing tracking data \citep{brakatsoulas05,buchin08a}, and matching coastline data \citep{mascret06}.
 In particular for clustering, a major advantage of the Fr\'echet distance is that it fulfills the triangle inequality and therefore is not only a distance measure but also a metric. 
 Other measures of curve similarity, such as DTW \citep{vintsyuk68,sankoff83}, do not obey the triangle inequality which limits their application in practice.
@@ -40,7 +41,7 @@ Extending the results to more general metrics is not straightforward as one quic
 One way to overcome these challenges is to estimate the continuous Fr\'echet distance of polygonal curves $\delta_\mathrm{F}$ with a discrete approximation $\delta_\mathrm{dF}$:
 Instead of taking all points of the (continuous) curves into account, the discrete Fr\'echet distance only includes a finite number of them.
 A typical choice for the set of the points is the set of vertices of the given polygonal curve itself.
-Informally, the discrete Fr\'echet distance can be thought of as the minimal leash length between two frogs \textit{jumping} between stones; during jumps, the leash is not taken into consideration.
+Informally and in comparison to the common \textit{man-walking-his-dog} analogy, the discrete Fr\'echet distance can be thought of as the minimal leash length between two frogs \textit{jumping} between stones; during jumps, the leash is not taken into consideration.
 
 In 1994, \citet{eiter94} defined the discrete Fr\'echet distance $\delta_\mathrm{dF}$ between two $D$-dimensional polygonal chains $p \in \mathbb{R}^{P \times D}$ and $q \in \mathbb{R}^{Q \times D}$, proposed the simple algorithm~\ref{alg:vanilla} of complexity $\mathcal{O}(D'PQ)$, where $D'$ is the complexity of evaluating $f$, and showed that the difference between the continuous Fr\'echet distance and its discrete variant is bound by the sample width of the curves,
 \begin{equation*}
@@ -84,11 +85,17 @@ Arguably, for the latter utilizing the discrete Fr\'echet distance even makes mo
 Hence, if the continuous Fr\'echet distance is realized by an alpha-carbon atom and some other point which does not represent an atom, it is not meaningful biologically.
 Later, \citet{zhu07} extended this work and analyzed the protein local structural alignment problem using bounded discrete Fr\'echet distance.
 
+Computing trajectory similarity is a fundamental operation in analyzing maritime vessel trajectories where the results are used as a building block for movement analytics, clustering, and classification of trajectories, for example:
+\citet{sakan23} studied route characteristics by using the discrete Fr\'{e}chet distance to measure the similarity of individual container fleets from a statistical perspective.
+\citet{cao18} used the discrete Fr\'{e}chet distance to solve the maximum distance between vessel trajectories and obtained a distance matrix, which was then decomposed using PCA to determine trajectory cluster.
+Similarly, \citet{roberts18} constructed a graph with vessel trajectories as the vertices and weighted the edges by the respective discrete Fr\'echet distance.
+Subsequently, a Minimum Spanning Tree was created from this graph and used for clustering.
+
 Although applied successfully in practice, the algorithm by \citet{eiter94} has three major disadvantages:
 First, the recursive formulation makes the algorithm impractical for larger curves as the recursive calls cannot be elided, e.g., by tail recursions, and can thus overflow the stack quickly.
-Secondly, the algorithm needs to allocate a memory block $M$ of size $P \times Q$ on line~\ref{alg:vanilla:M}.
-For large curves this allocation is slow, will likely pollute cache lines, and potentially constrains parallelization due to limited memory resources.
-Thirdly, the explicit branching points on lines~\ref{alg:vanilla:if1}, \ref{alg:vanilla:if2}, \ref{alg:vanilla:if3} and \ref{alg:vanilla:if4} put stress on the branch predictor and make it hard to reformulate the algorithm for an effective use on \textit{single instruction, multiple data} (SIMD) or \textit{single instruction, multiple threads} (SIMT) architectures aware hardware without causing branch divergences.
+Secondly, the algorithm needs to allocate a memory block $M$ of size $P \times Q$ (see line~\ref{alg:vanilla:M} in Alg.~\ref{alg:vanilla}).
+For large curves this allocation is slow, pollutes cache lines, and potentially constrains parallelization due to limited memory resources.
+Thirdly, the explicit branching points on lines~\ref{alg:vanilla:if1}, \ref{alg:vanilla:if2}, \ref{alg:vanilla:if3} and \ref{alg:vanilla:if4} put stress on the branch predictor and make it hard to reformulate the algorithm for an effective use on \textit{single instruction, multiple data} (SIMD) or \textit{single instruction, multiple threads} (SIMT) architectures without causing significant branch divergences.
 
 \section{An Iterative, Linear-Memory Algorithm}
 \label{sec:fast}
@@ -240,12 +247,12 @@ Levenshtein distance: introduced by Vladimir Levenshtein \citep{levenshtein65}, 
 Levenshtein: \textit{metric} is a binary set. In algorithm True is matched with $0$, and False with $\infty$. Levenshtein algorithm accumulates / counts rather than finds. Levenshtein has to have addition to deal with lack of ordering of metric. This transformation depends on context of accumulation and position in word. Open question: the context of the accumulation solely originates from the position in the word. Is there metric for the words within a word to make this explicit and make it a search algorithm?
 
 
-$\delta^{-1}_\mathfrak{C}: \mathfrak{C} \times \mathfrak{C} \mapsto \mathbb{N}$
+$f_\mathfrak{C}: \mathfrak{C} \times \mathfrak{C} \mapsto \mathbb{N}$
 \begin{equation}
     \label{eq:levenshtein_metric}
-    \delta^{-1}_\mathfrak{C}(a, b) \;=\; \begin{cases}
+    f_\mathfrak{C}(a, b) = 1 - \delta(a, b) = \begin{cases}
         0 & \text{if } a = b, \\
-        \infty & \text{else.}
+        1 & \text{else.}
     \end{cases}
 \end{equation}
 
@@ -263,7 +270,7 @@ $\delta^{-1}_\mathfrak{C}: \mathfrak{C} \times \mathfrak{C} \mapsto \mathbb{N}$
                 \State $u: \mathbb{R}^{Q-1} \gets \min\{ v_{1 \ldots Q-1},\, v_{2 \ldots Q} \}$
                 \Statex
                 \State $v_\mathrm{init} \gets \max\{ v_1, f(p_i, q_1) \}$
-                \State $v \gets$ \Call{fr\'echet\_maxmin$\backslash$}{$v_1,\, [u \;|\; f(p_i, q_{2 \ldots Q})]$}
+                \State $v \gets$ \Call{fr\'echet\_maxmin$\backslash$}{$v_\mathrm{init},\, [u \;|\; f(p_i, q_{2 \ldots Q})]$}
             \EndFor
             \Statex
             \State \Return $v_Q$
@@ -272,23 +279,23 @@ $\delta^{-1}_\mathfrak{C}: \mathfrak{C} \times \mathfrak{C} \mapsto \mathbb{N}$
 \end{algorithm}
 
 \begin{algorithm}
-    \caption{Levenshtein}
+    \caption{Levenshtein. $f_\mathfrak{C}: \mathfrak{C} \times \mathfrak{C} \mapsto \mathbb{N}$ from Eq.~\eqref{eq:levenshtein_metric}}
     \begin{algorithmic}[1]
-        \Function{levenshtein\_min}{$a: \mathbb{N}$, $x: \mathbb{N}^2$} $\to \mathbb{N}$
-            \State \Return $\min\{ \min\{a,\, x_1 \} + 1, x_2 \}$
+        \Function{levenshtein\_min}{$a: \mathbb{N}$, $x: \mathbb{N}$} $\to \mathbb{N}$
+            \State \Return $\min\{ a + 1, x \}$
         \EndFunction
         \Statex
-        \Function{levenshtein\_distance}{$p: \mathfrak{C}^P$, $q: \mathfrak{C}^Q$, $f: \mathfrak{C} \times \mathfrak{C} \mapsto \mathbb{N}$} $\to \mathbb{N}$
-            \State $v: \mathbb{N}^Q \gets \min\{1, f(p_1, q) \} + [0, \ldots, (Q - 1)]$
+        \Function{levenshtein\_distance}{$p: \mathfrak{C}^P$, $q: \mathfrak{C}^Q$} $\to \mathbb{N}$
+            \State $v: \mathbb{N}^Q \gets$ \Call{levenshtein\_min$\backslash$}{$f_\mathfrak{C}(p_1, q_1), f_\mathfrak{C}(p_1, q_{2 \ldots Q}) + [1, \ldots, Q-1]$}
             \Statex
             \For{$i \gets 2,P$}
-                \State $u: \mathbb{N}^{Q-1} \gets \min\{ v_{1 \ldots Q-1},\, v_{2 \ldots Q} \}$
+                \State $u: \mathbb{N}^{Q-1} \gets \min\{ v_{1 \ldots Q-1} + f_\mathfrak{C}(p_i, q_{2 \ldots Q}),\, v_{2 \ldots Q} + 1 \}$
                 \Statex
-                \State $v_\mathrm{init} \gets 1 + \min\{ i, u_1, f(p_i, q_1) \}$
-                \State $v \gets$ \Call{levenshtein\_min$\backslash$}{$v_\mathrm{init},\, [u \;|\; f(p_i, q_{2 \ldots Q}) + v_{1 \ldots Q-1}]$} 
+                \State $v_\mathrm{init} \gets \min\{ f_\mathfrak{C}(p_i, q_1) + i,\, v_1 + 1 \}$
+                \State $v \gets$ \Call{levenshtein\_min$\backslash$}{$v_\mathrm{init},\, u$} 
             \EndFor
             \Statex
-            \State \Return $v_{Q+1}$
+            \State \Return $v_Q$
         \EndFunction
     \end{algorithmic}
 \end{algorithm}

@@ -3,13 +3,12 @@ from itertools import accumulate
 import numpy as np
 
 
-def metric(a, b):
-    return np.where(a == b, 0, np.inf)
+def metric(p, q):
+    return np.where(p == q, 0, 1)
 
 
 def levenshtein_min(acc, x):
-    u, d = x
-    return min(1 + acc, 1 + u, d)
+    return min(acc + 1, x)
 
 
 def levenshtein_distance(p, q):
@@ -19,13 +18,15 @@ def levenshtein_distance(p, q):
     P = len(p)
     Q = len(q)
 
-    v = np.minimum(1, metric(p[0], q)) + np.arange(Q)
+    v = list(accumulate(metric(p[0], q) + np.arange(Q), levenshtein_min))
+    v = np.array(v)
 
     for i in range(1, P):
-        u = np.minimum(v[:-1], v[1:])
         d = metric(p[i], q)
+        u = np.minimum(v[:-1] + d[1:], v[1:] + 1)
 
-        init = 1 + min(1 + i, u[0], d[0])
-        v = list(accumulate(zip(u, d[1:] + v[:-1]), levenshtein_min, initial=init))
+        init = min(d[0] + i, v[0] + 1)
+        v = list(accumulate(u, levenshtein_min, initial=init))
+        v = np.array(v)
 
     return v[-1]
