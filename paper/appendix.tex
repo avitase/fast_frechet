@@ -1,13 +1,13 @@
 \section{Scan and Fold}
 \begin{algorithm}
-    \caption{Scan operator for a binary function $f: \mathcal{T}_2 \times \mathcal{T}_1 \to \mathcal{T}_2$. The notation of using a backslash is borrowed from \citet{iverson62,iverson79}. Note that we prepend the initial value to the returned sequence.}
+    \caption{Scan operator for a binary function $f: \mathcal{T}_2 \times \mathcal{T}_1 \to \mathcal{T}_2$. The notation of using a backslash is borrowed from \citet{iverson62,iverson79}. Note that we prepend the initial value to the returned sequence. If $\mathcal{T}_1 = \mathcal{T}_2$, we take the first value of $x$ as the initial value.}
     \label{alg:scan}
     \begin{algorithmic}[1]
         \Function{$[f: \mathcal{T}_2 \times \mathcal{T}_1 \to \mathcal{T}_2]\backslash$}{$t_0: \mathcal{T}_2$, $x: \mathcal{T}_1^N$} $\to \mathcal{T}_2^{N+1}$
             \State $y: \mathcal{T}_2^{N+1}$
             \State $y_1 \gets t_0$
             \Statex
-            \State $t: \mathcal{T}_2$ $\gets t_0$
+            \State $t: \mathcal{T}_2 \gets t_0$
             \For{$i \gets 1,N$}
                 \State $t \gets f(t, x_i)$
                 \State $y_{i+1} \gets t$
@@ -15,11 +15,15 @@
             \Statex
             \State \Return $y$
         \EndFunction
+        \Statex
+        \Function{$[f: \mathcal{T} \times \mathcal{T} \to \mathcal{T}]\backslash$}{$x: \mathcal{T}^N$} $\to \mathcal{T}^N$
+            \State \Return $f\backslash(x_1, x_{2 \ldots N})$
+        \EndFunction
     \end{algorithmic}
 \end{algorithm}
 
 \begin{algorithm}
-    \caption{Fold operator for a binary function $f: \mathcal{T}_2 \times \mathcal{T}_1 \to \mathcal{T}_2$. The notation of using a slash is borrowed from \citet{iverson62,iverson79}.}
+    \caption{Fold operator for a binary function $f: \mathcal{T}_2 \times \mathcal{T}_1 \to \mathcal{T}_2$. The notation of using a slash is borrowed from \citet{iverson62,iverson79}. If $\mathcal{T}_1 = \mathcal{T}_2$, we take the first value of $x$ as the initial value.}
     \label{alg:fold}
     \begin{algorithmic}[1]
         \Function{$[f: \mathcal{T}_2 \times \mathcal{T}_1 \to \mathcal{T}_2]/$}{$t_0: \mathcal{T}_2$, $x: \mathcal{T}_1^N$} $\to \mathcal{T}_2$
@@ -30,22 +34,22 @@
             \Statex
             \State \Return $t$
         \EndFunction
+        \Statex
+        \Function{$[f: \mathcal{T} \times \mathcal{T} \to \mathcal{T}]/$}{$x: \mathcal{T}^N$} $\to \mathcal{T}$
+            \State \Return $f/(x_1, x_{2 \ldots N})$
+        \EndFunction
     \end{algorithmic}
 \end{algorithm}
 \section{Batched}
 \begin{algorithm}
     \caption{Batched}
     \begin{algorithmic}[1]
-        \Function{fr\'echet\_maxmin}{$\alpha: \mathbb{R}^B$, $\chi: \mathbb{R}^{2 \times B}$} $\to \mathbb{R}^B$
-            \State \Return $\max\{ \min\{ \alpha,\, \chi_1 \},\, \chi_2 \}$
-        \EndFunction
-        \Statex
-        \Function{fr\'echet\_distance}{$[d_1: \mathbb{R}^{P_1 \times Q}$, $\ldots$, $d_N: \mathbb{R}^{P_N \times Q}]$, $B: \mathbb{N}_+$} $\to \mathbb{R}^N$
+        \Function{fr\'echet\_distance}{$p^1: \mathbb{R}^{P_1 \times D}$, $\ldots$, $p^N: \mathbb{R}^{P_N \times D}$, $q: \mathbb{R}^{Q \times 2}$, $B: \mathbb{N}_+$, $f: \mathbb{R}^D \times \mathbb{R}^D \mapsto \mathbb{R}$} $\to \mathbb{R}^N$
+            \Statex
             \State $\mu: \mathbb{N}^B \gets [\min\{1, N\}, \ldots, \min\{B, N\}]$
             \State $\rho: \mathbb{N}^B \gets [1, \ldots, 1]$
             \Statex
-            \State $\mathcal{V}: \mathbb{R}^{(Q+1) \times B} \gets [\max\!\backslash(0, d_{\min\{1, N\}, 1}) \;|\; \cdots \;|\; \max\!\backslash(0, d_{\min\{B, N\}, 1})]$ 
-            \State $\mathcal{V}_1 \gets [\infty, \ldots, \infty]$
+            \State $\mathcal{V}: \mathbb{R}^{Q \times B} \gets [\max\!\backslash(f(p^{\min\{1, N\}}_1, q)) \;|\; \cdots \;|\; \max\!\backslash(f(p^{\min\{B, N\}}_1, q)]$ 
             \Statex
             \State $\delta_\mathrm{dF}: \mathbb{R}^N$
             \State $i: \mathbb{N} \gets 0$
@@ -53,9 +57,9 @@
                 \While{$\nexists j: \rho_j = P_{\mu_j}$}
                     \State $\rho \gets \rho + 1$
                     \Statex
-                    \State $\mathcal{U}: \mathbb{R}^{Q \times B} \gets \min\{ \mathcal{V}_{1 \ldots Q},\, \mathcal{V}_{2 \ldots Q+1} \}$
-                    \State $\mathcal{D}: \mathbb{R}^{Q \times B} \gets [d_{\mu_1,\, \min\{\rho_1, P_{\mu_1}\}} \;|\; \cdots \;|\; d_{\mu_B,\, \min\{\rho_B, P_{\mu_B}\}}]$
-                    \State $\mathcal{V} \gets$ \Call{fr\'echet\_maxmin$\backslash$}{$\infty,\, [[\mathcal{U}_1, \mathcal{D}_1], \ldots, [\mathcal{U}_Q, \mathcal{D}_Q]]$}
+                    \State $\mathcal{U}: \mathbb{R}^{(Q - 1) \times B} \gets \min\{ \mathcal{V}_{1 \ldots Q-1},\, \mathcal{V}_{2 \ldots Q} \}$
+                    \State $\mathcal{D}: \mathbb{R}^{Q \times B} \gets [f(p^{\mu_1}_{\min\{\rho_1, P_{\mu_1}\}}, q) \;|\; \cdots \;|\; f(p^{\mu_B}_{\min\{\rho_B, P_{\mu_B}\}}, q)]$
+                    \State $\mathcal{V} \gets$ \Call{fr\'echet\_maxmin$\backslash$}{$\max\{ \mathcal{V}_1, \mathcal{D}_1 \},\, [[\mathcal{U}_1, \mathcal{D}_2], \ldots, [\mathcal{U}_{Q-1}, \mathcal{D}_Q]]$}
                 \EndWhile
                 \Statex
                 \For{$j \gets \{j \,|\, \rho_j = P_{\mu_j} \}$}
@@ -67,8 +71,7 @@
                         \State $\mu_j = i + B$
                         \State $\rho_j = 0$
                         \Statex
-                        \State $\mathcal{V}_{:,j} \gets \max\!\backslash(0, d_{\mu_j,1})$ 
-                        \State $\mathcal{V}_{1,j} \gets \infty$
+                        \State $\mathcal{V}_{:,j} \gets \max\!\backslash(f(p^{\mu_j}_1, q))$ 
                     \EndIf
                 \EndFor
             \EndWhile
@@ -79,22 +82,20 @@
 \end{algorithm}
 
 \begin{algorithm}
-    \caption{DTW}
+    \caption{Dynamic Time Warping. Evaluate rows of $d$ lazily}
     \begin{algorithmic}[1]
         \Function{dtw\_min}{$a: \mathbb{R}$, $x: \mathbb{R}^2$} $\to \mathbb{R}$
             \State \Return $\min\{ a,\, x_1 \} + x_2$
         \EndFunction
         \Statex
-        \Function{dtw\_next}{$a: \mathbb{R}^{Q+1}$, $x: \mathbb{R}^{Q}$} $\to \mathbb{R}^{Q+1}$
-            \State $u: \mathbb{R}^Q \gets \min\{ a_{1 \ldots Q},\, a_{2 \ldots Q+1} \}$
-            \State \Return \Call{dtw\_min$\backslash$}{$\infty,\, [u \;|\; x]$}
+        \Function{dtw\_next}{$a: \mathbb{R}^Q$, $x: \mathbb{R}^{Q}$} $\to \mathbb{R}^Q$
+            \State $a_{2 \ldots Q} \gets \min\{ a_{1 \ldots Q-1},\, a_{2 \ldots Q} \}$
+            \State \Return \Call{dtw\_min$\backslash$}{$a_1 + x_1,\, [a_{2 \ldots Q} \;|\; x_{2 \ldots Q}]$}
         \EndFunction
         \Statex
-        \Function{dtw\_distance}{$d: \mathbb{R}^{P \times Q}$} $\to \mathbb{R}$
-            \State $v: \mathbb{R}^{Q+1} \gets +\!\backslash(0, d_1)$
-            \State $v_1 \gets \infty$
-            \Statex
-            \State \Return $[$\Call{dtw\_next$/$}{$v, d_{2 \ldots P}$}$]_{Q+1}$
+        \Function{dtw\_distance}{$p: \mathbb{R}^{P \times D}$, $q: \mathbb{R}^{Q \times D}$, $f: \mathbb{R}^D \times \mathbb{R}^D \mapsto \mathbb{R}$} $\to \mathbb{R}$
+            \State $d: \mathbb{R}^{P \times Q} \gets [f(p_1, q),\, \ldots,\, f(p_P, q)]$
+            \State \Return $[$\Call{dtw\_next$/$}{$+\backslash d_1, d_{2 \ldots P}$}
         \EndFunction
     \end{algorithmic}
 \end{algorithm}

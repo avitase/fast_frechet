@@ -47,12 +47,12 @@ For invoking the [benchmark script](fast_frechet/__main__.py), run:
 
 ```bash
 $ python fast_frechet
-        no_recursion:  712 ms
-          vectorized:  210 ms
-          branchless:  188 ms
-       linear_memory:  125 ms
-          accumulate:  100 ms
-   reduce_accumulate:  100 ms
+        no_recursion:  771 ms
+          vectorized:  214 ms
+          branchless:  186 ms
+       linear_memory:  127 ms
+          accumulate:  101 ms
+   reduce_accumulate:   98 ms
 ```
 (Note that we don't even try to benchmark the [`vanilla`](fast_frechet/vanilla.py) version here, as it already crashes for polygonal curves with a few hundred points due to its recursive nature.)
 

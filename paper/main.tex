@@ -103,8 +103,9 @@ Thirdly, the explicit branching points on lines~\ref{alg:vanilla:if1}, \ref{alg:
 \label{sec:fast}
 In this section we introduce a new algorithm for finding the discrete Fr\'echet distance between two polygonal curves $p \in \mathbb{R}^{P \times D}$ and $q \in \mathbb{R}^{Q \times D}$.
 Our algorithm uses (left) fold/reduce operators for the binary functions \textsc{fr\'echet\_maxmin} and $\max$ on lines \ref{alg:fast:scan1} and \ref{alg:fast:scan2}, and a (left) scan/accumulate operator for the binary function \textsc{fr\'echet\_next} on line~\ref{alg:fast:fold}, where we borrowed the notation for the operators, $/$ and $\backslash$, from \citet{iverson62,iverson79}.
-In particular, note that our scan operator prepends the initial value ($\infty$ and $0$ on lines \ref{alg:fast:scan1} and \ref{alg:fast:scan2}, respectively) as the first element to the returned sequence.
-Pseudocodes for both operators are shown in the appendix in Alg.~\ref{alg:scan} and Alg.~\ref{alg:fold}.
+In particular, note that our scan operator prepends the initial value $\max\{ a_1, x_1 \}$ to the returned sequence.
+On line \ref{alg:fast:scan2} the parameters of the binary function $\max$ have the same type and thus we implicitly take the first value of the passed sequence as the initial value and pass the remaining sequence as the second argument.
+Pseudocodes for the operators are shown in the appendix in Alg.~\ref{alg:scan} and Alg.~\ref{alg:fold}.
 
 \begin{theorem}[Fast Discrete Fr\'echet Algorithm]
 \label{thm:fast}
@@ -113,7 +114,7 @@ The algorithms iteratively consumes the rows of $d$ such that each row, or even 
 The complexity of Alg.~\ref{alg:fast} is $\mathcal{O}(PQ)$ if $d$ is precomputed and $\mathcal{O}(D'PQ)$ if $d$ is evaluated lazily, where $D'$ is the complexity of evaluating a single element of $d$.
 
 \begin{algorithm}
-    \caption{A fast discrete Fr\'echet distance algorithm using fold of \textsc{fr\'echet\_next} (line \ref{alg:fast:fold}) and scan of \textsc{fr\'echet\_maxmin} (line \ref{alg:fast:scan1}) and $\max$ (line \ref{alg:fast:scan2}).}
+    \caption{A fast discrete Fr\'echet distance algorithm using fold of \textsc{fr\'echet\_next} (line \ref{alg:fast:fold}) and scan of \textsc{fr\'echet\_maxmin} (line \ref{alg:fast:scan1}) and $\max$ (line \ref{alg:fast:scan2}). The rows of $d$ can be evaluated lazily to achieve the linear memory requirement.}
     \label{alg:fast}
     \begin{algorithmic}[1]
         \Function{fr\'echet\_maxmin}{$a: \mathbb{R}$, $x: \mathbb{R}^2$} $\to \mathbb{R}$
@@ -121,15 +122,13 @@ The complexity of Alg.~\ref{alg:fast} is $\mathcal{O}(PQ)$ if $d$ is precomputed
         \EndFunction
         \Statex
         \Function{fr\'echet\_next}{$a: \mathbb{R}^Q$, $x: \mathbb{R}^{Q}$} $\to \mathbb{R}^Q$
-            \State $u: \mathbb{R}^{Q-1} \gets \min\{ a_{1 \ldots Q},\, a_{2 \ldots Q+1} \}$
-            \State $v_\mathrm{init}: \mathbb{R} \gets \max\{a_1, x_1\}$
-            \State \Return \Call{fr\'echet\_maxmin$\backslash$}{$v_\mathrm{init},\, [u \;|\; x_{2 \ldots Q}]$} \label{alg:fast:scan1}
+            \State $a_{2 \ldots Q} \gets \min\{ a_{1 \ldots Q},\, a_{2 \ldots Q+1} \}$
+            \State \Return \Call{fr\'echet\_maxmin$\backslash$}{$\max\{a_1, x_1\},\, [a_{2 \ldots Q} \;|\; x_{2 \ldots Q}]$} \label{alg:fast:scan1}
         \EndFunction
         \Statex
         \Function{fr\'echet\_distance}{$p: \mathbb{R}^{P \times D}$, $q: \mathbb{R}^{Q \times D}$, $f: \mathbb{R}^D \times \mathbb{R}^D \mapsto \mathbb{R}$} $\to \mathbb{R}$
-            \State $v: \mathbb{R}^Q \gets \max\!\backslash(f(p_1, q_1), f(p_1, q_{2 \ldots Q}))$ \label{alg:fast:scan2}
-            \State $d: \mathbb{R}^{(P-1) \times Q} \gets [f(p_2, q),\, \ldots,\, f(p_P, q)]$
-            \State \Return $[$\Call{fr\'echet\_next$/$}{$v, d$}$]_Q$ \label{alg:fast:fold}
+            \State $d: \mathbb{R}^{P \times Q} \gets [f(p_1, q),\, \ldots,\, f(p_P, q)]$
+            \State \Return $[$\Call{fr\'echet\_next$/$}{$\max\!\backslash(d_1), d_{2 \ldots P}$}$]_Q$ \label{alg:fast:fold} \label{alg:fast:scan2}
         \EndFunction
     \end{algorithmic}
 \end{algorithm}
@@ -147,8 +146,6 @@ Alg.~\ref{alg:no_recursion} shows an algorithm that also solves Eq.~\eqref{eq:dy
 The nested loops start at low indices and eventually accumulate the result in $M_{PQ}$ until $i=P$ and $j=Q$.
 In fact, at every point $M_{\alpha \beta}$ is the discrete Fr\'echet distance for the polygonal curves $p_i$ and $q_j$ with $i \in [1, \alpha]$ and $j \in [1, \beta]$, respectively.
 The complexity of this algorithm is $\mathcal{O}(PQ)$ if $d$ is given.
-
-TODO: change of signature
 
 \begin{algorithm}
     \caption{No recursion}
@@ -182,8 +179,8 @@ TODO: change of signature
     \caption{In-place}
     \begin{algorithmic}[1]
         \Function{fr\'echet\_distance}{$d: \mathbb{R}^{P \times Q}$} $\to \mathbb{R}$
-            \State $d_{:,1} \gets \max\!\backslash(d_{11}, d_{2 \ldots P,1})$
-            \State $d_{1,:} \gets \max\!\backslash(d_{11}, d_{1,2 \ldots Q})$
+            \State $d_{:,1} \gets \max\!\backslash(d_{:,1})$
+            \State $d_{1,:} \gets \max\!\backslash(d_{1,:})$
             \Statex
             \For{$i \gets 2,P$}
                 \For{$j \gets 2,Q$}
@@ -200,7 +197,7 @@ TODO: change of signature
     \caption{Linear memory}
     \begin{algorithmic}[1]
         \Function{fr\'echet\_distance}{$p: \mathbb{R}^{P \times D}$, $q: \mathbb{R}^{Q \times D}$, $f: \mathbb{R}^D \times \mathbb{R}^D \mapsto \mathbb{R}$} $\to \mathbb{R}$
-            \State $v: \mathbb{R}^Q \gets \max\!\backslash(f(p_1, q_1), f(p_1, q_{2 \ldots Q}))$
+            \State $v: \mathbb{R}^Q \gets \max\!\backslash(f(p_1, q))$
             \Statex
             \For{$i \gets 2,P$}
                 \State $u: \mathbb{R}^{Q-1} \gets \min\{ v_{1 \ldots Q-1},\, v_{2 \ldots Q} \}$
@@ -266,7 +263,7 @@ $f_\mathfrak{C}: \mathfrak{C} \times \mathfrak{C} \mapsto \mathbb{N}$
         \EndFunction
         \Statex
         \Function{fr\'echet\_distance}{$p: \mathbb{R}^{P \times D}$, $q: \mathbb{R}^{Q \times D}$, $f: \mathbb{R}^D \times \mathbb{R}^D \mapsto \mathbb{R}$} $\to \mathbb{R}$
-            \State $v: \mathbb{R}^Q \gets \max\!\backslash(f(p_1, q_1), f(p_1, q_{2 \ldots Q}))$
+            \State $v: \mathbb{R}^Q \gets \max\!\backslash(f(p_1, q))$
             \Statex
             \For{$i \gets 2,P$}
                 \State $u: \mathbb{R}^{Q-1} \gets \min\{ v_{1 \ldots Q-1},\, v_{2 \ldots Q} \}$
@@ -288,7 +285,7 @@ $f_\mathfrak{C}: \mathfrak{C} \times \mathfrak{C} \mapsto \mathbb{N}$
         \EndFunction
         \Statex
         \Function{levenshtein\_distance}{$p: \mathfrak{C}^P$, $q: \mathfrak{C}^Q$} $\to \mathbb{N}$
-            \State $v: \mathbb{N}^Q \gets$ \Call{levenshtein\_min$\backslash$}{$f_\mathfrak{C}(p_1, q_1), f_\mathfrak{C}(p_1, q_{2 \ldots Q}) + [1, \ldots, Q-1]$}
+            \State $v: \mathbb{N}^Q \gets$ \Call{levenshtein\_min$\backslash$}{$f_\mathfrak{C}(p_1, q) + [0, \ldots, Q-1]$}
             \Statex
             \For{$i \gets 2,P$}
                 \State $u: \mathbb{N}^{Q-1} \gets \min\{ v_{1 \ldots Q-1} + f_\mathfrak{C}(p_i, q_{2 \ldots Q}),\, v_{2 \ldots Q} + 1 \}$
