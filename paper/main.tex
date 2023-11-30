@@ -110,7 +110,7 @@ Pseudocodes for the operators are shown in the appendix in Alg.~\ref{alg:scan} a
 \begin{theorem}[Fast Discrete Fr\'echet Algorithm]
 \label{thm:fast}
 Alg.~\ref{alg:fast} calculates the discrete Fr\'echet distance given a distance matrix $d \in \mathbb{R}^{P \times Q}$.
-The algorithms iteratively consumes the rows of $d$ such that each row, or even each element, can be computed lazily; the memory requirement is therefore reduced to $\mathcal{O}(Q)$.
+The algorithms iteratively consumes the rows of $d$ such that each row, or even each element, can be computed lazily; the memory requirement is therefore reduced to $\mathcal{O}(2Q)$.
 The complexity of Alg.~\ref{alg:fast} is $\mathcal{O}(PQ)$ if $d$ is precomputed and $\mathcal{O}(D'PQ)$ if $d$ is evaluated lazily, where $D'$ is the complexity of evaluating a single element of $d$.
 
 \begin{algorithm}
@@ -145,10 +145,10 @@ where $\delta_\mathrm{dF} = M_{PQ}$.
 Alg.~\ref{alg:no_recursion} shows an algorithm that also solves Eq.~\eqref{eq:dynprogprob} but with a \textit{bottom-up} approach.
 The nested loops start at low indices and eventually accumulate the result in $M_{PQ}$ until $i=P$ and $j=Q$.
 In fact, at every point $M_{\alpha \beta}$ is the discrete Fr\'echet distance for the polygonal curves $p_i$ and $q_j$ with $i \in [1, \alpha]$ and $j \in [1, \beta]$, respectively.
-The complexity of this algorithm is $\mathcal{O}(PQ)$ if $d$ is given.
+The complexity of this algorithm is $\mathcal{O}(D'PQ)$ where the complexity of evaluating $f(p_i, q_j)$ on line \ref{alg:no_recursion_d} is $\mathcal{O}(D')$.
 
 \begin{algorithm}
-    \caption{No recursion}
+    \caption{Variant of Alg.~\ref{alg:vanilla} without recursions.}
     \label{alg:no_recursion}
     \begin{algorithmic}[1]
         \Function{fr\'echet\_distance}{$p: \mathbb{R}^{P \times D}$, $q: \mathbb{R}^{Q \times D}$, $f: \mathbb{R}^D \times \mathbb{R}^D \mapsto \mathbb{R}$} $\to \mathbb{R}$
@@ -156,7 +156,7 @@ The complexity of this algorithm is $\mathcal{O}(PQ)$ if $d$ is given.
             \Statex
             \For{$i \gets 1,P$}
                 \For{$j \gets 1,Q$}
-                    \State $d: \mathbb{R} \gets f(p_i, q_j)$
+                    \State $d: \mathbb{R} \gets f(p_i, q_j)$ \label{alg:no_recursion_d}
                     \Statex
                     \If{$i = 1 \;\land\; j = 1$}
                         \State $M_{11} \gets d$
@@ -175,8 +175,13 @@ The complexity of this algorithm is $\mathcal{O}(PQ)$ if $d$ is given.
     \end{algorithmic}
 \end{algorithm}
 
+Next, we remove branching points by evaluating the elements of $M_{ij}$ where either $i=1$ or $j=1$ before entering the nested loops.
+In fact, this variant can be formulated as an in-place algorithm that operates on the distance matrix $d \in \mathbb{R}^{P \times Q}$ of $p$ and $q$ without needing any further allocations.
+We show this variant in Alg.~\ref{alg:inplace}.
+
 \begin{algorithm}
-    \caption{In-place}
+    \caption{In-place variant of Alg.~\ref{alg:vanilla}. This variant directly maps a given distance matrix $d$ to the corresponding Fr\'echet distance. Note that this variant has no explicit branching points.}
+    \label{alg:inplace}
     \begin{algorithmic}[1]
         \Function{fr\'echet\_distance}{$d: \mathbb{R}^{P \times Q}$} $\to \mathbb{R}$
             \State $d_{:,1} \gets \max\!\backslash(d_{:,1})$
@@ -193,8 +198,13 @@ The complexity of this algorithm is $\mathcal{O}(PQ)$ if $d$ is given.
     \end{algorithmic}
 \end{algorithm}
 
+Finally, we note that only two adjacent rows of $M$ (or $d$ in Alg.~\ref{alg:inplace}) are needed during the iterations.
+In Alg.~\ref{alg:linear} we extract these rows into $u,v \in \mathbb{R}^Q$ and thus reduce the overall memory requirement to $\mathcal{O}(2Q)$.
+In Alg.~\ref{alg:fast} the loops over $i$ and $j$ have been rewritten as a fold/reduce and a scan/accumulate operation, respectively.
+
 \begin{algorithm}
-    \caption{Linear memory}
+    \caption{Variant of Alg.~\ref{alg:vanilla} without recursions and explicit branching points, and a linear memory requirement.}
+    \label{alg:linear}
     \begin{algorithmic}[1]
         \Function{fr\'echet\_distance}{$p: \mathbb{R}^{P \times D}$, $q: \mathbb{R}^{Q \times D}$, $f: \mathbb{R}^D \times \mathbb{R}^D \mapsto \mathbb{R}$} $\to \mathbb{R}$
             \State $v: \mathbb{R}^Q \gets \max\!\backslash(f(p_1, q))$
