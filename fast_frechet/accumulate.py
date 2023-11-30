@@ -11,9 +11,7 @@ def frechet_maxmin(acc, x):
 def frechet_distance(p, q, metric):
     P = p.shape[0]
 
-    v = metric(p[0], q)
-    v = np.maximum.accumulate(v)
-
+    v = np.maximum.accumulate(metric(p[0], q))
     for i in range(1, P):
         u = np.minimum(v[:-1], v[1:])
 

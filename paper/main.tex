@@ -40,10 +40,10 @@ Extending the results to more general metrics is not straightforward as one quic
 
 One way to overcome these challenges is to estimate the continuous Fr\'echet distance of polygonal curves $\delta_\mathrm{F}$ with a discrete approximation $\delta_\mathrm{dF}$:
 Instead of taking all points of the (continuous) curves into account, the discrete Fr\'echet distance only includes a finite number of them.
-A typical choice for the set of the points is the set of vertices of the given polygonal curve itself.
-Informally and in comparison to the common \textit{man-walking-his-dog} analogy, the discrete Fr\'echet distance can be thought of as the minimal leash length between two frogs \textit{jumping} between stones; during jumps, the leash is not taken into consideration.
+A typical choice for the set of the points is the set of vertices of the given polygonal curve itself, however, in order to decrease the approximation error, additional points can be sampled between them.
+Informally and in comparison to the common \textit{man-walking-his-dog} analogy, the discrete Fr\'echet distance can be thought of as the minimal leash length between two frogs jumping between stones, where \textit{stones} are the vertices and the leash is not taken into consideration during jumps.
 
-In 1994, \citet{eiter94} defined the discrete Fr\'echet distance $\delta_\mathrm{dF}$ between two $D$-dimensional polygonal chains $p \in \mathbb{R}^{P \times D}$ and $q \in \mathbb{R}^{Q \times D}$, proposed the simple algorithm~\ref{alg:vanilla} of complexity $\mathcal{O}(D'PQ)$, where $D'$ is the complexity of evaluating $f$, and showed that the difference between the continuous Fr\'echet distance and its discrete variant is bound by the sample width of the curves,
+In 1994, \citet{eiter94} defined the discrete Fr\'echet distance $\delta_\mathrm{dF}$ between two $D$-dimensional polygonal chains $p \in \mathbb{R}^{P \times D}$ and $q \in \mathbb{R}^{Q \times D}$, proposed the simple Alg.~\ref{alg:vanilla} of complexity $\mathcal{O}(D'PQ)$, where $D'$ is the complexity of evaluating $f$, and showed that the difference between the continuous Fr\'echet distance and its discrete variant is bound by the sample width of the curves,
 \begin{equation*}
     \delta_\mathrm{F}(p, q) \;\le\; \delta_\mathrm{dF}(p, q) \;\le\; \delta_\mathrm{F}(p, q) + \max\{ \varepsilon_p, \varepsilon_q \},
 \end{equation*}
@@ -85,17 +85,19 @@ Arguably, for the latter utilizing the discrete Fr\'echet distance even makes mo
 Hence, if the continuous Fr\'echet distance is realized by an alpha-carbon atom and some other point which does not represent an atom, it is not meaningful biologically.
 Later, \citet{zhu07} extended this work and analyzed the protein local structural alignment problem using bounded discrete Fr\'echet distance.
 
-Computing trajectory similarity is a fundamental operation in analyzing maritime vessel trajectories where the results are used as a building block for movement analytics, clustering, and classification of trajectories, for example:
+Furthermore, the Fr\'echet distance serves as a pivotal metric for assessing similarities among vessel trajectories in maritime research.
+Here, the discrete Fr\'echet distance again emerges as a more fitting measure in this context compared to its continuous variant, aligning seamlessly with the nature of trajectory data derived from discrete GNSS updates.
+If not used for benchmarking alternative approaches \citep{li20,liu23,luo23}, the discrete Fr\'echet distance is used a fundamental building block for movement analytics, clustering, and classification of the trajectories, for example:
 \citet{sakan23} studied route characteristics by using the discrete Fr\'{e}chet distance to measure the similarity of individual container fleets from a statistical perspective.
 \citet{cao18} used the discrete Fr\'{e}chet distance to solve the maximum distance between vessel trajectories and obtained a distance matrix, which was then decomposed using PCA to determine trajectory cluster.
-Similarly, \citet{roberts18} constructed a graph with vessel trajectories as the vertices and weighted the edges by the respective discrete Fr\'echet distance.
-Subsequently, a Minimum Spanning Tree was created from this graph and used for clustering.
+Similarly, \citet{roberts18} constructed a graph where vessel trajectories are the vertices and the edges are weighted by the discrete Fr\'echet distance between two vertices.
+Subsequently, a minimum spanning tree was created from this graph and used for clustering.
 
 Although applied successfully in practice, the algorithm by \citet{eiter94} has three major disadvantages:
-First, the recursive formulation makes the algorithm impractical for larger curves as the recursive calls cannot be elided, e.g., by tail recursions, and can thus overflow the stack quickly.
+First, the recursive formulation makes the algorithm impractical for larger curves as the recursive calls cannot be elided by tail recursions, thus making the algorithm slow and prone to stack overflows.
 Secondly, the algorithm needs to allocate a memory block $M$ of size $P \times Q$ (see line~\ref{alg:vanilla:M} in Alg.~\ref{alg:vanilla}).
 For large curves this allocation is slow, pollutes cache lines, and potentially constrains parallelization due to limited memory resources.
-Thirdly, the explicit branching points on lines~\ref{alg:vanilla:if1}, \ref{alg:vanilla:if2}, \ref{alg:vanilla:if3} and \ref{alg:vanilla:if4} put stress on the branch predictor and make it hard to reformulate the algorithm for an effective use on \textit{single instruction, multiple data} (SIMD) or \textit{single instruction, multiple threads} (SIMT) architectures without causing significant branch divergences.
+Thirdly, the explicit branching points on lines~\ref{alg:vanilla:if1}, \ref{alg:vanilla:if2}, \ref{alg:vanilla:if3} and \ref{alg:vanilla:if4} in Alg.~\ref{alg:vanilla} put stress on the branch predictor and make it hard to reformulate the algorithm for an effective use on \textit{single instruction, multiple data} (SIMD) or \textit{single instruction, multiple threads} (SIMT) architectures without causing significant branch divergences.
 
 \section{An Iterative, Linear-Memory Algorithm}
 \label{sec:fast}

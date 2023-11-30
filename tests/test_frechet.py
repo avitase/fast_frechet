@@ -84,14 +84,18 @@ def test_frechet(variant, P, Q, dim, seed):
 
 
 @pytest.mark.parametrize("N,batch_size", [(1, 1), (2, 3), (3, 2), (20, 3)])
+@pytest.mark.parametrize("dim", [1, 2])
 @pytest.mark.parametrize("seed", range(100))
-def test_batched_frechet(N, batch_size, seed):
+def test_batched_frechet(N, batch_size, dim, seed):
     rng = np.random.default_rng(seed)
 
-    p = [generate_trajectory(n=n, rng=rng) for n in rng.integers(3, 10, size=N)]
-    q = generate_trajectory(n=4, rng=rng)
+    p = [
+        generate_trajectory(n=n, dim=dim, rng=rng) for n in rng.integers(3, 10, size=N)
+    ]
+    q = generate_trajectory(n=4, dim=dim, rng=rng)
 
-    d1 = [accumulate.frechet_distance(p[i], q, metric=metric) for i in range(N)]
-    d2 = batched.frechet_distance(p, q, metric, batch_size=batch_size).tolist()
+    f = metric if dim > 1 else lambda p, q: np.abs(p - q)
+    d1 = [accumulate.frechet_distance(p[i], q, metric=f) for i in range(N)]
+    d2 = batched.frechet_distance(p, q, f, batch_size=batch_size).tolist()
 
     assert d1 == d2
