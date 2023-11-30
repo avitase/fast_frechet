@@ -114,7 +114,7 @@ The algorithms iteratively consumes the rows of $d$ such that each row, or even 
 The complexity of Alg.~\ref{alg:fast} is $\mathcal{O}(PQ)$ if $d$ is precomputed and $\mathcal{O}(D'PQ)$ if $d$ is evaluated lazily, where $D'$ is the complexity of evaluating a single element of $d$.
 
 \begin{algorithm}
-    \caption{A fast and concise algorithm that uses the fold of \textsc{fr\'echet\_next} (line~\ref{alg:fast:fold}) and the scans of \textsc{fr\'echet\_maxmin} (line~\ref{alg:fast:scan1}) and $\max$ (line~\ref{alg:fast:scan2}) to map a given distance matrix $d \in \mathbb{R}^{P \times Q}$ to the discrete Fr\'echet distance of $p \in \mathbb{R}^{P \times D}$ and $q \in \mathbb{R}^{Q \times D}$. The rows of $d$ can be evaluated lazily to achieve the linear memory requirement. The minimum on line~\ref{alg:fast:min} is taken element-wise. On line~\ref{alg:fast:scan1} the column vectors $a_{2 \ldots Q}$ and $x_{2 \ldots Q}$ are stacked into a $\mathbb{R}^{(Q - 1) \times 2}$ matrix that is iterated row-wise.}
+    \caption{A fast and concise algorithm that uses the fold of \textsc{fr\'echet\_next} (line~\ref{alg:fast:fold}) and the scans of \textsc{fr\'echet\_maxmin} (line~\ref{alg:fast:scan1}) and $\max$ (line~\ref{alg:fast:scan2}) to map a given distance matrix $d \in \mathbb{R}^{P \times Q}$ to the discrete Fr\'echet distance of $p \in \mathbb{R}^{P \times D}$ and $q \in \mathbb{R}^{Q \times D}$. The rows of $d$ can be evaluated lazily to achieve the linear memory requirement. The minimum on line~\ref{alg:fast:min} is taken element-wise. On line~\ref{alg:fast:scan1} the column vectors $a_{2 \ldots Q}$ and $x_{2 \ldots Q}$ are stacked into a $\mathbb{R}^{(Q - 1) \times 2}$ matrix and iterated row-wise.}
     \label{alg:fast}
     \begin{algorithmic}[1]
         \Function{fr\'echet\_maxmin}{$a: \mathbb{R}$, $x: \mathbb{R}^2$} $\to \mathbb{R}$
@@ -145,6 +145,10 @@ Alg.~\ref{alg:no_recursion} shows an algorithm that also solves Eq.~\eqref{eq:dy
 The nested loops start at low indices and eventually accumulate the result in $M_{PQ}$ until $i=P$ and $j=Q$.
 In fact, at every point $M_{\alpha \beta}$ is the discrete Fr\'echet distance for the polygonal curves $p_i$ and $q_j$ with $i \in [1, \alpha]$ and $j \in [1, \beta]$, respectively.
 The complexity of this algorithm is $\mathcal{O}(D'PQ)$ where the complexity of evaluating $f(p_i, q_j)$ on line \ref{alg:no_recursion:d} is $\mathcal{O}(D')$.
+
+We believe that at least this simplification is already well established since \citet{ahn10} used a decision algorithm that is a close adaptation of Alg.~\ref{alg:vanilla} and is already implemented without recursions---yet still with a quadratic memory requirement and branches.
+In Sec.~\ref{sec:dtw_levenshtein} we will discuss the relation of the discrete Fr\'echet distance to DTW and the Levenshtein distance.
+Here as well iterative algorithms without recursions are common.
 
 \begin{algorithm}
     \caption{Variant of Alg.~\ref{alg:vanilla} without recursions.}
@@ -223,26 +227,11 @@ In Alg.~\ref{alg:fast} the iterations over $p_i$ and $q_j$ have been rewritten a
 \end{algorithm}
 \end{proof}
 
-\citep{agarwal14}: Computing the discrete Fr\'echet distance in subquadratic time. ($\overset{?}{\sim}$ linear search faster than more educated approaches on modern hardware if input data is small). The given \textit{subquadratic} complexity is only slightly better than quadratic.
-
-\citep{aronov06}: Approximation of discrete Fr\'echet distance. Is \citep{avraham14} related?
-
-Later, Aronov et al.\ presented efficient approximation algorithms for computing
-the discrete Fr\'echet distance of two natural classes of curves: $\kappa$-bounded curves and backbone curves \citep{aronov06}.
+The quadratic complexity of the algorithms can be improved if further approximation are made.
+For example, \citet{aronov06} presented an efficient approximation algorithms for computing the discrete Fr\'echet distance of two natural classes of curves: $\kappa$-bounded curves and backbone curves.
 They also proposed a pseudo-output-sensitive algorithm for computing the discrete Fr\'echet distance exactly.
-
-\citep{ahn10}'s algorithm is based on a decision algorithm where the algorithm iterated in the inner-loop is a close adaptation of \citep{eiter94}.
-They already use a matrix-formulation w/o recursion and they have eliminated most branches.
-
-$\ldots$ Eventhough the Fr\'echet distance can be calculated faster for several restricted versions \citep{driemel12,gudmundsson18,buchin10,maheshwari11} $\ldots$ our thing works in general and for any metric!
-
-Alg.~\ref{alg:vanilla}: speed-up by finding stopping criterion for recursion. If $d_{ij} \ge d_{\alpha\beta} \forall \alpha \le i \land \beta \le j$ recursion can stop. Problem: How to find w/o a full search. In a sense, Alg.~\ref{alg:no_recursion} solves this issue with a bottom-up approach.
-
-\textit{Stress that our contribution doesn't make any assumptions about the metric or trajectory properties (e.g. Sakoe-Chiba bands) and scaling to higher dimensions only depends on the metric.}
-
-Our contribution: complementary to \citet{bringmann19}: \textit{Walking the Frog Fast in Practice}
-
-
+However, even though the discrete Fr\'echet distance can be calculated faster for several restricted versions \citep{driemel12,gudmundsson18,buchin10,maheshwari11} our proposed algorithm works for the general case.
+In particular, it does not make any assumptions about the metric or trajectory properties, e.g., Sakoe-Chiba bands, and scaling to higher dimensions only depends on $D'$.
 
 \section{DTW and the Levenshtein Distance}
 \label{sec:dtw_levenshtein}
@@ -311,6 +300,13 @@ $f_\mathfrak{C}: \mathfrak{C} \times \mathfrak{C} \mapsto \mathbb{N}$
 \section{Parallel Implementations}
 \label{sec:parallel}
 $\ldots$ schedule $\ldots$
+
+\citep{avraham14}: The algorithms obtained for the discrete Fr\'echet distance with
+shortcuts, run in time significantly better than those for the Fr\'echet
+distance without shortcuts. 
+
+\citep{agarwal14}: Computing the discrete Fr\'echet distance in subquadratic time. ($\overset{?}{\sim}$ linear search faster than more educated approaches on modern hardware if input data is small). The given \textit{subquadratic} complexity is only slightly better than quadratic.
+
 
 Recently there has been some work on estimating Fr\'echet distances for uncertain curves. \citet{buchin23} shows that ... We note that in particular for the problem of finding approximations for the expected Fr\'echet distance when the vertices are either indecisive or even only implicitly given by their distribution function, our fast implementation might leverages MC approaches. + MC sampling perfectly befits the SIMD implementation! (For indecisive case: MC even allows assignment of probabilities to each point)
 Work on Fr\'echet distance for uncertain curves, \textbf{e.g.}\footnote{there are more articles by Buchin about this, but there are not easy to cite} \citep{buchin23}: Given an uncertain curve and a second (certain or uncertain) curve, we seek to compute the lower and upper bound Fr\'echet distance, which are the minimum and maximum Fr\'echet distance for any realisations of the curves.
