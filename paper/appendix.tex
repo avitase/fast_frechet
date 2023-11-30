@@ -93,8 +93,7 @@
             \State \Return \Call{dtw\_min$\backslash$}{$a_1 + x_1,\, [a_{2 \ldots Q} \;|\; x_{2 \ldots Q}]$}
         \EndFunction
         \Statex
-        \Function{dtw\_distance}{$p: \mathbb{R}^{P \times D}$, $q: \mathbb{R}^{Q \times D}$, $f: \mathbb{R}^D \times \mathbb{R}^D \mapsto \mathbb{R}$} $\to \mathbb{R}$
-            \State $d: \mathbb{R}^{P \times Q} \gets [f(p_1, q),\, \ldots,\, f(p_P, q)]$
+        \Function{dtw\_distance}{$d: \mathbb{R}^{P \times Q}$} $\to \mathbb{R}$
             \State \Return $[$\Call{dtw\_next$/$}{$+\backslash d_1, d_{2 \ldots P}$}
         \EndFunction
     \end{algorithmic}

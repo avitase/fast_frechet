@@ -7,7 +7,7 @@ However, there is no explicit way to find the Fr\'echet distance in this setting
 Instead, the problem can be solved with dynamic programming and finding efficient algorithms remains a vibrant area of research \citep{aronov06,avraham14,agarwal14,bringmann19}.
 Our contribution to this ongoing exploration is an efficient algorithm for the discrete Fr\'echet distance that is optimized to run fast on modern hardware.
 In particular, we reformulate the recursive algorithm proposed by \citet{eiter94} as an iterative, branchless algorithm and reduce its quadratic memory requirement to a linear one.
-Our solution can be vectorized to take full advantage of modern CPU and GPU architectures.
+Our formulation requires just four lines of pseudo-code, excluding function signatures, and can be vectorized to take full advantage of modern CPU and GPU architectures.
 To the best of our knowledge, we are the first to comprehensively propose these modifications although it is possible that others---while only referring to \citet{eiter94}---are already using some of the modifications in practice without explicitly noting.
 
 The remainder of this paper is structured as follows:
@@ -114,7 +114,7 @@ The algorithms iteratively consumes the rows of $d$ such that each row, or even 
 The complexity of Alg.~\ref{alg:fast} is $\mathcal{O}(PQ)$ if $d$ is precomputed and $\mathcal{O}(D'PQ)$ if $d$ is evaluated lazily, where $D'$ is the complexity of evaluating a single element of $d$.
 
 \begin{algorithm}
-    \caption{A fast discrete Fr\'echet distance algorithm using fold of \textsc{fr\'echet\_next} (line \ref{alg:fast:fold}) and scan of \textsc{fr\'echet\_maxmin} (line \ref{alg:fast:scan1}) and $\max$ (line \ref{alg:fast:scan2}). The rows of $d$ can be evaluated lazily to achieve the linear memory requirement.}
+    \caption{A fast and concise algorithm that uses the fold of \textsc{fr\'echet\_next} (line~\ref{alg:fast:fold}) and the scans of \textsc{fr\'echet\_maxmin} (line~\ref{alg:fast:scan1}) and $\max$ (line~\ref{alg:fast:scan2}) to map a given distance matrix $d \in \mathbb{R}^{P \times Q}$ to the discrete Fr\'echet distance of $p \in \mathbb{R}^{P \times D}$ and $q \in \mathbb{R}^{Q \times D}$. The rows of $d$ can be evaluated lazily to achieve the linear memory requirement. The minimum on line~\ref{alg:fast:min} is taken element-wise. On line~\ref{alg:fast:scan1} the column vectors $a_{2 \ldots Q}$ and $x_{2 \ldots Q}$ are stacked into a $\mathbb{R}^{(Q - 1) \times 2}$ matrix that is iterated row-wise.}
     \label{alg:fast}
     \begin{algorithmic}[1]
         \Function{fr\'echet\_maxmin}{$a: \mathbb{R}$, $x: \mathbb{R}^2$} $\to \mathbb{R}$
@@ -122,12 +122,11 @@ The complexity of Alg.~\ref{alg:fast} is $\mathcal{O}(PQ)$ if $d$ is precomputed
         \EndFunction
         \Statex
         \Function{fr\'echet\_next}{$a: \mathbb{R}^Q$, $x: \mathbb{R}^{Q}$} $\to \mathbb{R}^Q$
-            \State $a_{2 \ldots Q} \gets \min\{ a_{1 \ldots Q},\, a_{2 \ldots Q+1} \}$
+            \State $a_{2 \ldots Q} \gets \min\{ a_{1 \ldots Q},\, a_{2 \ldots Q+1} \}$ \label{alg:fast:min}
             \State \Return \Call{fr\'echet\_maxmin$\backslash$}{$\max\{a_1, x_1\},\, [a_{2 \ldots Q} \;|\; x_{2 \ldots Q}]$} \label{alg:fast:scan1}
         \EndFunction
         \Statex
-        \Function{fr\'echet\_distance}{$p: \mathbb{R}^{P \times D}$, $q: \mathbb{R}^{Q \times D}$, $f: \mathbb{R}^D \times \mathbb{R}^D \mapsto \mathbb{R}$} $\to \mathbb{R}$
-            \State $d: \mathbb{R}^{P \times Q} \gets [f(p_1, q),\, \ldots,\, f(p_P, q)]$
+        \Function{fr\'echet\_distance}{$d: \mathbb{R}^{P \times Q}$} $\to \mathbb{R}$
             \State \Return $[$\Call{fr\'echet\_next$/$}{$\max\!\backslash(d_1), d_{2 \ldots P}$}$]_Q$ \label{alg:fast:fold} \label{alg:fast:scan2}
         \EndFunction
     \end{algorithmic}
@@ -145,7 +144,7 @@ where $\delta_\mathrm{dF} = M_{PQ}$.
 Alg.~\ref{alg:no_recursion} shows an algorithm that also solves Eq.~\eqref{eq:dynprogprob} but with a \textit{bottom-up} approach.
 The nested loops start at low indices and eventually accumulate the result in $M_{PQ}$ until $i=P$ and $j=Q$.
 In fact, at every point $M_{\alpha \beta}$ is the discrete Fr\'echet distance for the polygonal curves $p_i$ and $q_j$ with $i \in [1, \alpha]$ and $j \in [1, \beta]$, respectively.
-The complexity of this algorithm is $\mathcal{O}(D'PQ)$ where the complexity of evaluating $f(p_i, q_j)$ on line \ref{alg:no_recursion_d} is $\mathcal{O}(D')$.
+The complexity of this algorithm is $\mathcal{O}(D'PQ)$ where the complexity of evaluating $f(p_i, q_j)$ on line \ref{alg:no_recursion:d} is $\mathcal{O}(D')$.
 
 \begin{algorithm}
     \caption{Variant of Alg.~\ref{alg:vanilla} without recursions.}
@@ -156,7 +155,7 @@ The complexity of this algorithm is $\mathcal{O}(D'PQ)$ where the complexity of 
             \Statex
             \For{$i \gets 1,P$}
                 \For{$j \gets 1,Q$}
-                    \State $d: \mathbb{R} \gets f(p_i, q_j)$ \label{alg:no_recursion_d}
+                    \State $d: \mathbb{R} \gets f(p_i, q_j)$ \label{alg:no_recursion:d}
                     \Statex
                     \If{$i = 1 \;\land\; j = 1$}
                         \State $M_{11} \gets d$
@@ -175,7 +174,7 @@ The complexity of this algorithm is $\mathcal{O}(D'PQ)$ where the complexity of 
     \end{algorithmic}
 \end{algorithm}
 
-Next, we remove branching points by evaluating the elements of $M_{ij}$ where either $i=1$ or $j=1$ before entering the nested loops.
+Next, we remove branching points by evaluating the elements of $M_{ij}$ where either $i=1$ or $j=1$ before entering the nested loops with scans/accumulates of the first column (line~\ref{alg:inplace:scan1} of Alg.~\ref{alg:inplace}) and first row (line~\ref{alg:inplace:scan2} of Alg.~\ref{alg:inplace}) of $d$ using the $\max$ function, respectively.
 In fact, this variant can be formulated as an in-place algorithm that operates on the distance matrix $d \in \mathbb{R}^{P \times Q}$ of $p$ and $q$ without needing any further allocations.
 We show this variant in Alg.~\ref{alg:inplace}.
 
@@ -184,8 +183,8 @@ We show this variant in Alg.~\ref{alg:inplace}.
     \label{alg:inplace}
     \begin{algorithmic}[1]
         \Function{fr\'echet\_distance}{$d: \mathbb{R}^{P \times Q}$} $\to \mathbb{R}$
-            \State $d_{:,1} \gets \max\!\backslash(d_{:,1})$
-            \State $d_{1,:} \gets \max\!\backslash(d_{1,:})$
+            \State $d_{:,1} \gets \max\!\backslash(d_{:,1})$ \label{alg:inplace:scan1}
+            \State $d_{1,:} \gets \max\!\backslash(d_{1,:})$ \label{alg:inplace:scan2}
             \Statex
             \For{$i \gets 2,P$}
                 \For{$j \gets 2,Q$}
@@ -200,7 +199,7 @@ We show this variant in Alg.~\ref{alg:inplace}.
 
 Finally, we note that only two adjacent rows of $M$ (or $d$ in Alg.~\ref{alg:inplace}) are needed during the iterations.
 In Alg.~\ref{alg:linear} we extract these rows into $u,v \in \mathbb{R}^Q$ and thus reduce the overall memory requirement to $\mathcal{O}(2Q)$.
-In Alg.~\ref{alg:fast} the loops over $i$ and $j$ have been rewritten as a fold/reduce and a scan/accumulate operation, respectively.
+In Alg.~\ref{alg:fast} the iterations over $p_i$ and $q_j$ have been rewritten as a fold/reduce and a scan/accumulate operation, respectively.
 
 \begin{algorithm}
     \caption{Variant of Alg.~\ref{alg:vanilla} without recursions and explicit branching points, and a linear memory requirement.}
