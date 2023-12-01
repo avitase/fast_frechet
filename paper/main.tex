@@ -102,7 +102,7 @@ Thirdly, the explicit branching points on lines~\ref{alg:vanilla:if1}, \ref{alg:
 \section{An Iterative, Linear-Memory Algorithm}
 \label{sec:fast}
 In this section we introduce a new algorithm for finding the discrete Fr\'echet distance between two polygonal curves $p \in \mathbb{R}^{P \times D}$ and $q \in \mathbb{R}^{Q \times D}$.
-Our algorithm uses (left) fold/reduce operators for the binary functions \textsc{fr\'echet\_maxmin} and $\max$ on lines \ref{alg:fast:scan1} and \ref{alg:fast:scan2}, and a (left) scan/accumulate operator for the binary function \textsc{fr\'echet\_next} on line~\ref{alg:fast:fold}, where we borrowed the notation for the operators, $/$ and $\backslash$, from \citet{iverson62,iverson79}.
+Our algorithm uses (left) fold/reduce operators for the binary functions \textsc{fr\'echet\_maxmin} and $\max$ on lines \ref{alg:fast:scan1} and \ref{alg:fast:scan2}, and a (left) scan/accumulate operator for the binary function \textsc{fr\'echet\_next} on line~\ref{alg:fast:fold}, where we borrowed the notation for the operators, $/$ and $\backslash$, from APL \citep{iverson62,iverson79}.
 In particular, note that our scan operator prepends the initial value $\max\{ a_1, x_1 \}$ to the returned sequence.
 On line \ref{alg:fast:scan2} the parameters of the binary function $\max$ have the same type and thus we implicitly take the first value of the passed sequence as the initial value and pass the remaining sequence as the second argument.
 Pseudocodes for the operators are shown in the appendix in Alg.~\ref{alg:scan} and Alg.~\ref{alg:fold}.
@@ -114,7 +114,7 @@ The algorithms iteratively consumes the rows of $d$ such that each row, or even 
 The complexity of Alg.~\ref{alg:fast} is $\mathcal{O}(PQ)$ if $d$ is precomputed and $\mathcal{O}(D'PQ)$ if $d$ is evaluated lazily, where $D'$ is the complexity of evaluating a single element of $d$.
 
 \begin{algorithm}
-    \caption{A fast and concise algorithm that uses the fold of \textsc{fr\'echet\_next} (line~\ref{alg:fast:fold}) and the scans of \textsc{fr\'echet\_maxmin} (line~\ref{alg:fast:scan1}) and $\max$ (line~\ref{alg:fast:scan2}) to map a given distance matrix $d \in \mathbb{R}^{P \times Q}$ to the discrete Fr\'echet distance of $p \in \mathbb{R}^{P \times D}$ and $q \in \mathbb{R}^{Q \times D}$. The rows of $d$ can be evaluated lazily to achieve the linear memory requirement. The minimum on line~\ref{alg:fast:min} is taken element-wise. On line~\ref{alg:fast:scan1} the column vectors $a_{2 \ldots Q}$ and $x_{2 \ldots Q}$ are stacked into a $\mathbb{R}^{(Q - 1) \times 2}$ matrix and iterated row-wise.}
+    \caption{A fast and concise algorithm that uses the fold of \textsc{fr\'echet\_next} (line~\ref{alg:fast:fold}) and the scans of \textsc{fr\'echet\_maxmin} (line~\ref{alg:fast:scan1}) and $\max$ (line~\ref{alg:fast:scan2}) to map a given distance matrix $d_{ij} = \| p_i - q_j \|_\mathcal{S}$ to the discrete Fr\'echet distance of $p \in \mathbb{R}^{P \times D}$ and $q \in \mathbb{R}^{Q \times D}$. The rows of $d$ can be evaluated lazily to achieve the linear memory requirement. The minimum on line~\ref{alg:fast:min} is taken element-wise. On line~\ref{alg:fast:scan1} the column vectors $a_{2 \ldots Q}$ and $x_{2 \ldots Q}$ are stacked into a $\mathbb{R}^{(Q - 1) \times 2}$ matrix and iterated row-wise.}
     \label{alg:fast}
     \begin{algorithmic}[1]
         \Function{fr\'echet\_maxmin}{$a: \mathbb{R}$, $x: \mathbb{R}^2$} $\to \mathbb{R}$
@@ -122,7 +122,7 @@ The complexity of Alg.~\ref{alg:fast} is $\mathcal{O}(PQ)$ if $d$ is precomputed
         \EndFunction
         \Statex
         \Function{fr\'echet\_next}{$a: \mathbb{R}^Q$, $x: \mathbb{R}^{Q}$} $\to \mathbb{R}^Q$
-            \State $a_{2 \ldots Q} \gets \min\{ a_{1 \ldots Q},\, a_{2 \ldots Q+1} \}$ \label{alg:fast:min}
+            \State $a_{2 \ldots Q} \gets \min\{ a_{1 \ldots Q-1},\, a_{2 \ldots Q} \}$ \label{alg:fast:min}
             \State \Return \Call{fr\'echet\_maxmin$\backslash$}{$\max\{a_1, x_1\},\, [a_{2 \ldots Q} \;|\; x_{2 \ldots Q}]$} \label{alg:fast:scan1}
         \EndFunction
         \Statex
@@ -183,7 +183,7 @@ In fact, this variant can be formulated as an in-place algorithm that operates o
 We show this variant in Alg.~\ref{alg:inplace}.
 
 \begin{algorithm}
-    \caption{In-place variant of Alg.~\ref{alg:vanilla}. This variant directly maps a given distance matrix $d$ to the corresponding Fr\'echet distance. Note that this variant has no explicit branching points.}
+    \caption{In-place variant of Alg.~\ref{alg:vanilla}. This variant directly maps a given distance matrix $d_{ij} = \|p_i - q_j\|_\mathcal{S}$  to the corresponding Fr\'echet distance. Note that this variant has no explicit branching points.}
     \label{alg:inplace}
     \begin{algorithmic}[1]
         \Function{fr\'echet\_distance}{$d: \mathbb{R}^{P \times Q}$} $\to \mathbb{R}$
@@ -244,55 +244,33 @@ Levenshtein distance: introduced by Vladimir Levenshtein \citep{levenshtein65}, 
 Levenshtein: \textit{metric} is a binary set. In algorithm True is matched with $0$, and False with $\infty$. Levenshtein algorithm accumulates / counts rather than finds. Levenshtein has to have addition to deal with lack of ordering of metric. This transformation depends on context of accumulation and position in word. Open question: the context of the accumulation solely originates from the position in the word. Is there metric for the words within a word to make this explicit and make it a search algorithm?
 
 
-$f_\mathfrak{C}: \mathfrak{C} \times \mathfrak{C} \mapsto \mathbb{N}$
+$f_\mathcal{C}: \mathcal{C} \times \mathcal{C} \mapsto \mathbb{N}$
 \begin{equation}
     \label{eq:levenshtein_metric}
-    f_\mathfrak{C}(a, b) = 1 - \delta(a, b) = \begin{cases}
+    \| a - b \|_\mathcal{C} = f_\mathcal{C}(a, b) = \begin{cases}
         0 & \text{if } a = b, \\
         1 & \text{else.}
     \end{cases}
 \end{equation}
 
 \begin{algorithm}
-    \caption{Scan}
-    \begin{algorithmic}[1]
-        \Function{fr\'echet\_maxmin}{$a: \mathbb{R}$, $x: \mathbb{R}^2$} $\to \mathbb{R}$
-            \State \Return $\max\{ \min\{ a,\, x_1 \},\, x_2 \}$
-        \EndFunction
-        \Statex
-        \Function{fr\'echet\_distance}{$p: \mathbb{R}^{P \times D}$, $q: \mathbb{R}^{Q \times D}$, $f: \mathbb{R}^D \times \mathbb{R}^D \mapsto \mathbb{R}$} $\to \mathbb{R}$
-            \State $v: \mathbb{R}^Q \gets \max\!\backslash(f(p_1, q))$
-            \Statex
-            \For{$i \gets 2,P$}
-                \State $u: \mathbb{R}^{Q-1} \gets \min\{ v_{1 \ldots Q-1},\, v_{2 \ldots Q} \}$
-                \Statex
-                \State $v_\mathrm{init} \gets \max\{ v_1, f(p_i, q_1) \}$
-                \State $v \gets$ \Call{fr\'echet\_maxmin$\backslash$}{$v_\mathrm{init},\, [u \;|\; f(p_i, q_{2 \ldots Q})]$}
-            \EndFor
-            \Statex
-            \State \Return $v_Q$
-        \EndFunction
-    \end{algorithmic}
-\end{algorithm}
-
-\begin{algorithm}
-    \caption{Levenshtein. $f_\mathfrak{C}: \mathfrak{C} \times \mathfrak{C} \mapsto \mathbb{N}$ from Eq.~\eqref{eq:levenshtein_metric}}
+    \caption{Algorithm that maps a given distance matrix $d_{ij} = [p_i \neq q_j]$, where $[ \bullet ]$ is the Iverson bracket~\citep{knuth92}, to the Levenshtein distance of the character sequences $p \in \mathcal{C}^P$ and $q \in \mathcal{C}^Q$.}
     \begin{algorithmic}[1]
         \Function{levenshtein\_min}{$a: \mathbb{N}$, $x: \mathbb{N}$} $\to \mathbb{N}$
             \State \Return $\min\{ a + 1, x \}$
         \EndFunction
         \Statex
-        \Function{levenshtein\_distance}{$p: \mathfrak{C}^P$, $q: \mathfrak{C}^Q$} $\to \mathbb{N}$
-            \State $v: \mathbb{N}^Q \gets$ \Call{levenshtein\_min$\backslash$}{$f_\mathfrak{C}(p_1, q) + [0, \ldots, Q-1]$}
+        \Function{levenshtein\_next}{$a: \mathbb{N}^Q$, $x: \mathbb{N}^{2 \times Q}$} $\to \mathbb{N}^Q$
+            \State $a_{2 \ldots Q} \gets \min\{a_{1 \ldots Q-1} + x_{2,2 \ldots Q},\, a_{2 \ldots Q} + 1 \}$
+            \State \Return \Call{levenshtein\_min$\backslash$}{$\min\{ x_{11} + x_{21},\, a_1 + 1 \},\, a_{2 \ldots Q}$}
+        \EndFunction
+        \Statex
+        \Function{levenshtein\_distance}{$d: \mathbb{R}^{P \times Q}$} $\to \mathbb{N}$
+            \State $\iota_{1 \ldots Q}: \mathbb{N}^{Q} \gets [1, \ldots, Q]$
+            \State $\iota_{2 \ldots P}: \mathbb{N}^{P-1} \gets [2, \ldots, P]$
             \Statex
-            \For{$i \gets 2,P$}
-                \State $u: \mathbb{N}^{Q-1} \gets \min\{ v_{1 \ldots Q-1} + f_\mathfrak{C}(p_i, q_{2 \ldots Q}),\, v_{2 \ldots Q} + 1 \}$
-                \Statex
-                \State $v_\mathrm{init} \gets \min\{ f_\mathfrak{C}(p_i, q_1) + i,\, v_1 + 1 \}$
-                \State $v \gets$ \Call{levenshtein\_min$\backslash$}{$v_\mathrm{init},\, u$} 
-            \EndFor
-            \Statex
-            \State \Return $v_Q$
+            \State $v_\mathrm{init}: \mathbb{N} \gets$ \Call{levenshtein\_min$\backslash$}{$\iota_{1 \ldots Q} + d_1$}
+            \State \Return \Call{levenshtein\_next$/$}{$v_\mathrm{init},\, [\iota_{2 \ldots P} \;|\; d_{2 \ldots P}]$}
         \EndFunction
     \end{algorithmic}
 \end{algorithm}

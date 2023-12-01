@@ -1,3 +1,4 @@
+from functools import partial, reduce
 from itertools import accumulate
 
 import numpy as np
@@ -11,22 +12,23 @@ def levenshtein_min(acc, x):
     return min(acc + 1, x)
 
 
+def levenshtein_next(acc, x):
+    acc = np.array(acc)
+
+    i, d = x
+    acc[1:] = np.minimum(acc[:-1] + d[1:], acc[1:] + 1)
+    acc[0] = min(i + d[0], acc[0] + 1)
+    return list(accumulate(acc, levenshtein_min))
+
+
 def levenshtein_distance(p, q):
     p = np.array(list(p))
     q = np.array(list(q))
 
-    P = len(p)
-    Q = len(q)
+    iP = np.arange(len(p))
+    iQ = np.arange(len(q))
 
-    v = list(accumulate(metric(p[0], q) + np.arange(Q), levenshtein_min))
-    v = np.array(v)
+    d = map(partial(metric, q), p)
 
-    for i in range(1, P):
-        d = metric(p[i], q)
-        u = np.minimum(v[:-1] + d[1:], v[1:] + 1)
-
-        init = min(d[0] + i, v[0] + 1)
-        v = list(accumulate(u, levenshtein_min, initial=init))
-        v = np.array(v)
-
-    return v[-1]
+    init = list(accumulate(iQ + next(d), levenshtein_min))
+    return reduce(levenshtein_next, zip(iP[1:], d), init)[-1]
