@@ -102,7 +102,7 @@ Thirdly, the explicit branching points on lines~\ref{alg:vanilla:if1}, \ref{alg:
 \section{An Iterative, Linear-Memory Algorithm}
 \label{sec:fast}
 In this section we introduce a new algorithm for finding the discrete Fr\'echet distance between two polygonal curves $p \in \mathbb{R}^{P \times D}$ and $q \in \mathbb{R}^{Q \times D}$.
-Our algorithm uses (left) fold/reduce operators for the binary functions \textsc{fr\'echet\_maxmin} and $\max$ on lines \ref{alg:fast:scan1} and \ref{alg:fast:scan2}, and a (left) scan/accumulate operator for the binary function \textsc{fr\'echet\_next} on line~\ref{alg:fast:fold}, where we borrowed the notation for the operators, $/$ and $\backslash$, from APL \citep{iverson62,iverson79}.
+Our algorithm uses (left) fold/reduce operators for the binary functions \textsc{fr\'echet\_maxmin} and $\max$ on lines \ref{alg:fast:scan1} and \ref{alg:fast:scan2}, and a (left) scan/accumulate operator for the binary function \textsc{fr\'echet\_next} on line~\ref{alg:fast:fold}, where we borrowed the notation for the operators, $/$ and $\backslash$, from \citet{iverson62,iverson79}.
 In particular, note that our scan operator prepends the initial value $\max\{ a_1, x_1 \}$ to the returned sequence.
 On line \ref{alg:fast:scan2} the parameters of the binary function $\max$ have the same type and thus we implicitly take the first value of the passed sequence as the initial value and pass the remaining sequence as the second argument.
 Pseudocodes for the operators are shown in the appendix in Alg.~\ref{alg:scan} and Alg.~\ref{alg:fold}.
