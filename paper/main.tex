@@ -244,7 +244,7 @@ Levenshtein distance: introduced by Vladimir Levenshtein \citep{levenshtein65}, 
 Levenshtein: \textit{metric} is a binary set. In algorithm True is matched with $0$, and False with $\infty$. Levenshtein algorithm accumulates / counts rather than finds. Levenshtein has to have addition to deal with lack of ordering of metric. This transformation depends on context of accumulation and position in word. Open question: the context of the accumulation solely originates from the position in the word. Is there metric for the words within a word to make this explicit and make it a search algorithm?
 
 
-$f_\mathcal{C}: \mathcal{C} \times \mathcal{C} \mapsto \mathbb{N}$
+$f_\mathcal{C}: \mathcal{C} \times \mathcal{C} \mapsto \{0, 1 \}$
 \begin{equation}
     \label{eq:levenshtein_metric}
     \| a - b \|_\mathcal{C} = f_\mathcal{C}(a, b) = \begin{cases}
@@ -256,21 +256,21 @@ $f_\mathcal{C}: \mathcal{C} \times \mathcal{C} \mapsto \mathbb{N}$
 \begin{algorithm}
     \caption{Algorithm that maps a given distance matrix $d_{ij} = [p_i \neq q_j]$, where $[ \bullet ]$ is the Iverson bracket~\citep{knuth92}, to the Levenshtein distance of the character sequences $p \in \mathcal{C}^P$ and $q \in \mathcal{C}^Q$.}
     \begin{algorithmic}[1]
-        \Function{levenshtein\_min}{$a: \mathbb{N}$, $x: \mathbb{N}$} $\to \mathbb{N}$
+        \Function{levenshtein\_min}{$a: \mathbb{N}_+$, $x: \mathbb{N}_+$} $\to \mathbb{N}_+$
             \State \Return $\min\{ a + 1, x \}$
         \EndFunction
         \Statex
-        \Function{levenshtein\_next}{$a: \mathbb{N}^Q$, $x: \mathbb{N}^{2 \times Q}$} $\to \mathbb{N}^Q$
-            \State $a_{2 \ldots Q} \gets \min\{a_{1 \ldots Q-1} + x_{2,2 \ldots Q},\, a_{2 \ldots Q} + 1 \}$
-            \State \Return \Call{levenshtein\_min$\backslash$}{$\min\{ x_{11} + x_{21},\, a_1 + 1 \},\, a_{2 \ldots Q}$}
+        \Function{levenshtein\_next}{$a: \mathbb{N}_+^Q$, $(i: \mathbb{N}_+,\, x: \mathbb{N}_+^Q)$} $\to \mathbb{N}_+^Q$
+            \State $a_{2 \ldots Q} \gets \min\{a_{1 \ldots Q-1} + x_{2 \ldots Q},\, a_{2 \ldots Q} + 1 \}$
+            \State \Return \Call{levenshtein\_min$\backslash$}{$\min\{ i + x_1,\, a_1 + 1 \},\, a_{2 \ldots Q}$}
         \EndFunction
         \Statex
-        \Function{levenshtein\_distance}{$d: \mathbb{R}^{P \times Q}$} $\to \mathbb{N}$
-            \State $\iota_{1 \ldots Q}: \mathbb{N}^{Q} \gets [1, \ldots, Q]$
-            \State $\iota_{2 \ldots P}: \mathbb{N}^{P-1} \gets [2, \ldots, P]$
+        \Function{levenshtein\_distance}{$d: \mathbb{R}^{P \times Q}$} $\to \mathbb{N}_+$
+            \State $\iota_{1 \ldots Q}: \mathbb{N}_+^{Q} \gets [1, \ldots, Q]$
+            \State $\iota_{2 \ldots P}: \mathbb{N}_+^{P-1} \gets [2, \ldots, P]$
             \Statex
-            \State $v_\mathrm{init}: \mathbb{N} \gets$ \Call{levenshtein\_min$\backslash$}{$\iota_{1 \ldots Q} + d_1$}
-            \State \Return \Call{levenshtein\_next$/$}{$v_\mathrm{init},\, [\iota_{2 \ldots P} \;|\; d_{2 \ldots P}]$}
+            \State $v_\mathrm{init}: \mathbb{N}_+ \gets$ \Call{levenshtein\_min$\backslash$}{$\iota_{1 \ldots Q} + d_1$}
+            \State \Return \Call{levenshtein\_next$/$}{$v_\mathrm{init},\, (\iota_{2 \ldots P},\, d_{2 \ldots P})$}
         \EndFunction
     \end{algorithmic}
 \end{algorithm}
