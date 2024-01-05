@@ -32,9 +32,10 @@ def benchmark(f, *, n, rng):
     return min(timeit.repeat(lambda: f(p, q), repeat=3, number=1))
 
 
-def main():
-    rng = np.random.default_rng(42)
+def main(n=1024, seed=42):
+    print(f"{n=}, {seed=}\n")
 
+    rng = np.random.default_rng(seed)
     for v in [
         no_recursion,
         branchless,
@@ -45,8 +46,8 @@ def main():
         compiled,
     ]:
         f = partial(v.frechet_distance, metric=metric)
-        t = benchmark(partial(f, metric=metric), n=500, rng=rng) * 1_000
-        print(f"{v.__name__.split('.')[-1]:>20}: {t:.4g} ms")
+        t = benchmark(partial(f, metric=metric), n=n, rng=rng) * 1_000
+        print(f"{v.__name__.split('.')[-1]:>20}: {t:4.0f} ms")
 
 
 if __name__ == "__main__":
