@@ -5,6 +5,7 @@ from fast_frechet import (
     accumulate,
     batched,
     branchless,
+    compiled,
     linear_memory,
     no_recursion,
     reduce_accumulate,
@@ -41,6 +42,7 @@ def generate_trajectory(n, *, dim, rng):
         linear_memory,
         accumulate,
         reduce_accumulate,
+        compiled,
     ],
 )
 def test_simple_example(variant):
@@ -62,6 +64,7 @@ def test_simple_example(variant):
         linear_memory,
         accumulate,
         reduce_accumulate,
+        compiled,
     ],
 )
 @pytest.mark.parametrize("P,Q", [(2, 2), (3, 4), (9, 4)])

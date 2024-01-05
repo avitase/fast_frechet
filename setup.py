@@ -29,6 +29,7 @@ setup(
     python_requires=">=3.10",
     install_requires=[
         "numpy",
+        "numba",
     ],
     extras_require={
         "dev": [
