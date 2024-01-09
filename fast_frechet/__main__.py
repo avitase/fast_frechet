@@ -43,11 +43,11 @@ def benchmark_batched(f, *, N, k, P_max, rng):
     return min(timeit.repeat(lambda: f(p, q), repeat=3, number=1)) * 1_000
 
 
-def main(test_batched, *, N=1024, k=0.2, P_max=1024, seed=42):
+def main(test_batched, *, N=1024, k=0.25, P_max=1024, seed=42):
     rng = np.random.default_rng(seed)
 
     if not test_batched:
-        print(f"Length of trajectory = {P_max}")
+        print(f"Length of trajectory = {int(k * P_max)}")
         print("")
 
         for v in [
@@ -60,8 +60,8 @@ def main(test_batched, *, N=1024, k=0.2, P_max=1024, seed=42):
             compiled,
         ]:
             f = partial(v.frechet_distance, metric=metric)
-            t = benchmark(f, n=P_max, rng=rng)
-            print(f"{v.__name__.split('.')[-1]:>20}: {t:>4.0f} ms")
+            t = benchmark(f, n=int(k * P_max), rng=rng)
+            print(f"{v.__name__.split('.')[-1]:>20}: {t:>3.0f} ms")
 
     else:
         print(f"Number of trajectories = {N}")

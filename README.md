@@ -48,15 +48,15 @@ For invoking the [benchmark script](fast_frechet/__main__.py), run:
 
 ```bash
 $ python fast_frechet
-Length of trajectory = 1024
+Length of trajectory = 256
 
-        no_recursion: 2471 ms
-          vectorized:  680 ms
-          branchless:  602 ms
-       linear_memory:  411 ms
-          accumulate:  296 ms
-   reduce_accumulate:  292 ms
-            compiled:   11 ms
+        no_recursion: 294 ms
+          vectorized:  80 ms
+          branchless:  74 ms
+       linear_memory:  54 ms
+          accumulate:  42 ms
+   reduce_accumulate:  39 ms
+            compiled:   2 ms
 ```
 (Note that we don't even try to benchmark the [`vanilla`](fast_frechet/vanilla.py) version here, as it already crashes for polygonal curves with a few hundred points due to its recursive nature.)
 
@@ -65,19 +65,19 @@ To see the performance of the batched variant, run:
 ```bash
 $ python fast_frechet --batched
 Number of trajectories = 1024
-Length of trajectories ~ Binom(p=0.2, N=1024)
+Length of trajectories ~ Binom(p=0.25, N=1024)
 
-   reduce_accumulate (reference): 13016 ms
-                    batch size=4: 11550 ms
-                    batch size=8:  5966 ms
-                   batch size=16:  3243 ms
-                   batch size=32:  1870 ms
-                   batch size=64:  1204 ms
-                  batch size=128:   877 ms
-                  batch size=256:   750 ms
-                  batch size=512:   764 ms
-                 batch size=1024:   715 ms
-                 batch size=2048:  1274 ms
+   reduce_accumulate (reference): 40638 ms
+                    batch size=4: 38590 ms
+                    batch size=8: 19865 ms
+                   batch size=16: 10781 ms
+                   batch size=32:  5977 ms
+                   batch size=64:  3967 ms
+                  batch size=128:  2802 ms
+                  batch size=256:  2173 ms
+                  batch size=512:  1957 ms
+                 batch size=1024:  1906 ms
+                 batch size=2048:  3717 ms
 ```
 The performance depends on the chosen batch size. In particular, if the batch size becomes larger as the number of trajectories the performance will deteriorate.
 
