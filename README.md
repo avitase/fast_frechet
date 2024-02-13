@@ -29,4 +29,9 @@ $ cmake --build --preset=debug -t format-fix
 $ ./build/debug/install/bin/ffrechet-test
 ```
 
+## Python implementations
+
+Python implementations of the discrete Fréchet Distance can be found [here][fast_frechet-python].
+
 [vanilla]: http://www.kr.tuwien.ac.at/staff/eiter/et-archive/cdtr9464.pdf
+[fast_frechet-python]: https://github.com/avitase/fast_frechet-python
