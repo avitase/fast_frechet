@@ -1,0 +1,61 @@
+{
+  "version": 2,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 14,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "common",
+      "hidden": true,
+      "generator": "Unix Makefiles",
+      "cacheVariables": {
+        "FFRECHET_SIMD_LANE_MULTIPLIER": "2"
+      }
+    },
+    {
+      "name": "debug",
+      "inherits": "common",
+      "binaryDir": "${sourceDir}/build/debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "ffrechet_DEVELOPER_MODE": "ON",
+        "FFRECHET_VANILLA_BUILD_TYPE": "Debug",
+        "FFRECHET_LINEAR_BUILD_TYPE": "Debug",
+        "FFRECHET_SIMD_BUILD_TYPE": "Debug",
+        "FFRECHET_CUDA_BUILD_TYPE": "Debug",
+        "FFRECHET_TEST_BUILD_TYPE": "Debug",
+        "FFRECHET_BENCHMARK_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "release",
+      "inherits": "common",
+      "binaryDir": "${sourceDir}/build/release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "FFRECHET_VANILLA_BUILD_TYPE": "Release",
+        "FFRECHET_LINEAR_BUILD_TYPE": "Release",
+        "FFRECHET_SIMD_BUILD_TYPE": "Release",
+        "FFRECHET_CUDA_BUILD_TYPE": "Release",
+        "FFRECHET_TEST_BUILD_TYPE": "Release",
+        "FFRECHET_BENCHMARK_BUILD_TYPE": "Release"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "debug",
+      "configurePreset": "debug",
+      "configuration": "Debug",
+      "jobs": 16
+    },
+    {
+      "name": "release",
+      "configurePreset": "release",
+      "configuration": "Release",
+      "jobs": 16
+    }
+  ]
+}

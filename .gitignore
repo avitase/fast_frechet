@@ -1,0 +1,5 @@
+*.swp
+.idea/
+CMakeUserPresets.json
+build/
+benchmark.json

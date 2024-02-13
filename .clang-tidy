@@ -1,0 +1,49 @@
+---
+Checks: "*,\
+  -cppcoreguidelines-avoid-magic-numbers,\
+  -cppcoreguidelines-pro-bounds-pointer-arithmetic,\
+  -google-readability-todo,\
+  -altera-*,\
+  -fuchsia-*,\
+  -llvm-header-guard,\
+  -llvm-include-order,\
+  -llvmlibc-*,\
+  -modernize-use-nodiscard,\
+  -modernize-use-trailing-return-type,\
+  -misc-non-private-member-variables-in-classes,\
+  -readability-identifier-length,\
+  -readability-identifier-naming,\
+  -readability-magic-numbers"
+WarningsAsErrors: '*'
+CheckOptions:
+  - key: 'bugprone-argument-comment.StrictMode'
+    value: 'true'
+  - key: 'bugprone-argument-comment.CommentBoolLiterals'
+    value: 'true'
+  - key: 'bugprone-misplaced-widening-cast.CheckImplicitCasts'
+    value: 'true'
+  - key: 'bugprone-sizeof-expression.WarnOnSizeOfIntegerExpression'
+    value: 'true'
+  - key: 'bugprone-suspicious-string-compare.WarnOnLogicalNotComparison'
+    value: 'true'
+  - key: 'readability-simplify-boolean-expr.ChainedConditionalReturn'
+    value: 'true'
+  - key: 'readability-simplify-boolean-expr.ChainedConditionalAssignment'
+    value: 'true'
+  - key: 'readability-uniqueptr-delete-release.PreferResetCall'
+    value: 'true'
+  - key: 'cppcoreguidelines-init-variables.MathHeader'
+    value: '<cmath>'
+  - key: 'cppcoreguidelines-narrowing-conversions.PedanticMode'
+    value: 'true'
+  - key: 'readability-else-after-return.WarnOnUnfixable'
+    value: 'true'
+  - key: 'readability-else-after-return.WarnOnConditionVariables'
+    value: 'true'
+  - key: 'readability-inconsistent-declaration-parameter-name.Strict'
+    value: 'true'
+  - key: 'readability-qualified-auto.AddConstToQualified'
+    value: 'true'
+  - key: 'readability-redundant-access-specifiers.CheckFirstDeclaration'
+    value: 'true'
+...
