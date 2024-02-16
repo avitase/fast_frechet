@@ -1,7 +1,10 @@
 #pragma once
 
-namespace fast_frechet::cuda
+namespace fast_frechet
+{
+namespace cuda
 {
 void cuda_check();
 void cuda_check(cudaError_t);
-} // namespace fast_frechet::cuda
+} // namespace cuda
+} // namespace fast_frechet

@@ -3,7 +3,9 @@
 
 #include "ffrechet-cuda/ffrechet-cuda.hpp"
 
-namespace fast_frechet::cuda
+namespace fast_frechet
+{
+namespace cuda
 {
 void cuda_check(cudaError_t code)
 {
@@ -17,4 +19,5 @@ void cuda_check()
 {
     cuda_check(cudaGetLastError());
 }
-} // namespace fast_frechet::cuda
+} // namespace cuda
+} // namespace fast_frechet
