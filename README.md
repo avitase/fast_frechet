@@ -10,6 +10,11 @@ This is a collection of different C++ implementations for calculating the discre
 Implementations of all these variants can be found under `ffrechet-{vanilla,linear,simd,cuda}/source/` or by simply clicking on the listed names above.
 
 ## Installation
+```bash
+# configure
+$ git submodule --init
+$ cp CMakeUserPresets.json.EXAMPLE CMakeUserPresets.json
+```
 
 ```bash
 # release build & run benchmark
