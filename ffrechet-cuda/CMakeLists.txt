@@ -50,7 +50,7 @@ target_include_directories(
     "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/export>"
 )
 
-target_compile_features(ffrechet-cuda_ffrechet-cuda PUBLIC cxx_std_17)
+target_compile_features(ffrechet-cuda_ffrechet-cuda PUBLIC cxx_std_11)
 
 # ---- Install rules ----
 
