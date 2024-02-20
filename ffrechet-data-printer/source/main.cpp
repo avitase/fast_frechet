@@ -16,7 +16,7 @@ int main(int argc, char** argv)
 
     const ::fast_frechet::data::BinomParams params{
         .k = (argc > 1) ? std::strtoull(argv[1], nullptr, 10) : 5U,
-        .p = (argc > 2) ? std::strtod(argv[2], nullptr) : 1.};
+        .p = (argc > 2) ? std::strtod(argv[2], nullptr) / 100. : 1.};
     const auto N = (argc > 3) ? std::strtoull(argv[3], nullptr, 10) : 10U;
     const auto seed = (argc > 4) ? static_cast<unsigned>(std::strtoul(argv[4], nullptr, 10)) : 0U;
 
