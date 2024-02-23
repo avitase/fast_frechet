@@ -2,7 +2,7 @@
 
 This is a collection of different C++ implementations for calculating the discrete [Fréchet distance](https://en.wikipedia.org/wiki/Fr%C3%A9chet_distance) between two polygonal curves:
 
-1. [`vanilla`](ffrechet-vanilla/source/ffrechet-vanilla.cpp): A recursion-free adaptation of of original algorithm as the proposed in [_Computing Discrete Fréchet Distance_ by T. Eiter and H. Mannila (1994)][vanilla], used as a baseline.
+1. [`vanilla`](ffrechet-vanilla/source/ffrechet-vanilla.cpp): A recursion-free adaptation of the original algorithm as proposed in [_Computing Discrete Fréchet Distance_ by T. Eiter and H. Mannila (1994)][vanilla], used as a baseline.
 1. [`linear`](ffrechet-linear/source/ffrechet-linear.cpp): This formulation reduces the quadratic memory footprint to a linear one.
 1. [`SIMD`](ffrechet-simd/source/ffrechet-simd.cpp): Formulation using SIMD parallelization on a single CPU core.
 1. [`CUDA`](ffrechet-cuda/source/ffrechet-cuda.cu): Formulation using CUDA.
