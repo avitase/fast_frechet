@@ -9,7 +9,7 @@ This is a collection of different C++ implementations for calculating the discre
 
 Implementations of all these variants can be found under `ffrechet-{vanilla,linear,simd,cuda}/source/` or by simply clicking on the listed names above.
 
-## Toolchain Requirements
+## Toolchain Requirements ⚙️
 
 This project has been primarily tested on Linux environments. Please note the following dependencies:
 
@@ -18,7 +18,7 @@ This project has been primarily tested on Linux environments. Please note the fo
 
 You can customize the compiler versions by editing the respective toolchain files [`ffrechet-simd/ffrechet-simd_toolchain.cmake`][ffrechet-simd_toolchain.cmake] and [`ffrechet-simd/ffrechet-cuda_toolchain.cmake`][ffrechet-cuda_toolchain.cmake].
 
-## Installation
+## Installation 🛠️
 
 First, make sure that you have checked out the dependencies ([google-benchmark][google-benchmark] and [google-test][google-test]) by running
 ```bash
@@ -51,7 +51,7 @@ Afterwards, you can reset the performance mode back to _powersave_ via
 $ sudo cpupower frequency-set --governor powersave
 ```
 
-## Developer Mode
+## Developer Mode 👷
 
 In case you are interested in contributing to this project, you might find our `debug` preset helpful:
 ```bash
@@ -71,7 +71,7 @@ $ cmake --build --preset=debug -t format-check
 $ cmake --build --preset=debug -t format-fix
 ```
 
-## Python implementations
+## Python Implementations 🐍
 
 Python implementations of the discrete Fréchet Distance can be found [here][fast_frechet-python].
 
