@@ -13,7 +13,7 @@ Implementations of all these variants can be found under `ffrechet-{vanilla,line
 
 This project has been primarily tested on Linux environments. Please note the following dependencies:
 
-1. [SIMD implementation][ffrechet-simd_toolchain.cmake]: Requires at least GCC-11, as it relies on the experimental SIMD implementation of the [Parallelism Technical Specification (TS) v2](std::experimental::simd).
+1. [SIMD implementation][ffrechet-simd_toolchain.cmake]: Requires at least GCC-11, as it relies on the experimental SIMD implementation of the [Parallelism Technical Specification (TS) v2][std::experimental::simd].
 2. [CUDA implementation][ffrechet-cuda_toolchain.cmake]: Requires a compiler version compatible with the NVCC installation.
 
 You can customize the compiler versions by editing the respective toolchain files [`ffrechet-simd/ffrechet-simd_toolchain.cmake`][ffrechet-simd_toolchain.cmake] and [`ffrechet-simd/ffrechet-cuda_toolchain.cmake`][ffrechet-cuda_toolchain.cmake].
