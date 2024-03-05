@@ -38,6 +38,20 @@ namespace
 }
 } // namespace
 
+static void baseline(benchmark::State& state)
+{
+    const auto& [p, q] = ::generate_trajectories(state);
+
+    // warm-up
+    benchmark::DoNotOptimize(::fast_frechet::vanilla::frechet_distance(p, q));
+
+    for (auto _ : state) // NOLINT
+    {
+        benchmark::DoNotOptimize(::fast_frechet::vanilla::frechet_distance(p, q));
+        benchmark::ClobberMemory();
+    }
+}
+
 static void ffrechet_vanilla(benchmark::State& state)
 {
     const auto& [p, q] = ::generate_trajectories(state);
