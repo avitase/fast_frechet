@@ -21,6 +21,7 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "ffrechet_DEVELOPER_MODE": "ON",
+        "FFRECHET_BASELINE_BUILD_TYPE": "Debug",
         "FFRECHET_VANILLA_BUILD_TYPE": "Debug",
         "FFRECHET_LINEAR_BUILD_TYPE": "Debug",
         "FFRECHET_SIMD_BUILD_TYPE": "Debug",
@@ -35,6 +36,7 @@
       "binaryDir": "${sourceDir}/build/release",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
+        "FFRECHET_BASELINE_BUILD_TYPE": "Release",
         "FFRECHET_VANILLA_BUILD_TYPE": "Release",
         "FFRECHET_LINEAR_BUILD_TYPE": "Release",
         "FFRECHET_SIMD_BUILD_TYPE": "Release",

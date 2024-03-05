@@ -1,3 +1,4 @@
+#include <cmath>
 #include <vector>
 
 #include <gmock/gmock.h>
@@ -8,6 +9,38 @@
 
 namespace
 {
+TEST(FFrechetTest, Baseline)
+{
+    namespace data = ::fast_frechet::data;
+    namespace baseline = ::fast_frechet::baseline;
+
+    using ::testing::FloatEq;
+    using ::testing::Pointwise;
+
+    const auto N = 10U;
+    const auto P = 100;
+    const auto Q = 50U;
+
+    const auto& p = data::generate_trajectories<float>(N, {P, 1.}, 42U);
+    const auto q = data::generate_trajectories<float>(1U, {Q, 1.}, 43U).front();
+
+    std::vector<float> expected(N, 0.f);
+    for (std::size_t n = 0; n < N; n++)
+    {
+        for (std::size_t i = 0; i < P; i++)
+        {
+            for (std::size_t j = 0; j < Q; j++)
+            {
+                const auto dx = p[n].x[i] - q.x[j];
+                const auto dy = p[n].y[i] - q.y[j];
+                expected[n] += std::hypot(dx, dy);
+            }
+        }
+    }
+
+    EXPECT_THAT(baseline::frechet_distance(p, q), Pointwise(FloatEq(), expected));
+}
+
 TEST(FFrechetTest, SimpleTrajectories)
 {
     namespace vanilla = ::fast_frechet::vanilla;

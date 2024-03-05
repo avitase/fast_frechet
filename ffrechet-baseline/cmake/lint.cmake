@@ -9,22 +9,8 @@ endmacro()
 default(FORMAT_COMMAND clang-format)
 default(
     PATTERNS
-    ffrechet-baseline/include/*.hpp
-    ffrechet-baseline/source/*.cpp ffrechet-baseline/source/*.hpp
-    ffrechet-benchmark/source/*.cpp ffrechet-benchmark/source/*.hpp
-    ffrechet-cuda/include/*.hpp
-    ffrechet-cuda/source/*.cpp ffrechet-cuda/source/*.hpp
-    ffrechet-data/include/*.hpp
-    ffrechet-data-printer/include/*.hpp
-    ffrechet-data-printer/source/*.cpp ffrechet-data-printer/source/*.hpp
-    ffrechet-cwrapper/include/*.hpp
-    ffrechet-linear/include/*.hpp
-    ffrechet-linear/source/*.cpp ffrechet-linear/source/*.hpp
-    ffrechet-simd/include/*.hpp
-    ffrechet-simd/source/*.cpp ffrechet-simd/source/*.hpp
-    ffrechet-vanilla/include/*.hpp
-    ffrechet-vanilla/source/*.cpp ffrechet-vanilla/source/*.hpp
-    ffrechet-test/source/*.cpp ffrechet-test/source/*.hpp
+    source/*.cpp source/*.hpp
+    include/*.hpp
 )
 default(FIX NO)
 
