@@ -33,8 +33,9 @@ The Fr\'echet distance also has applications in matching biological sequences \c
 In particular for clustering, a major advantage of the Fr\'echet distance is that it fulfills the triangle inequality and therefore is not only a distance measure but also a metric. 
 Other measures of curve similarity, such as DTW~\citep{vintsyuk68,sankoff83} or the average Fr\'echet distance~\citep{brakatsoulas05}, do not obey the triangle inequality which significantly limits their application for downstream tasks in practice.
 
-Computing the Fr\'echet distance between two precise curves can be done in near-quadratic time \citep{agarwal14,alt95,buchin17}, and assuming the strong exponential time hypothesis, it cannot be computed or even approximated well in strongly subquadratic time unless SETH fails \citep{bringmann14,buchin19a}.
-In practice, algorithms with a theoretical quadratic complexity often rely on certain pre-processing steps and are complex to implement in general \citep{bringmann19}.
+Computing the Fr\'echet distance between two precise curves can be done in near-quadratic time \citep{agarwal14,alt95,buchin17a}, and assuming the strong exponential time hypothesis, it cannot be computed or even approximated well in strongly subquadratic time unless SETH fails \citep{bringmann14,buchin19a}.
+In practice, algorithms with a theoretical quadratic complexity often rely on certain pre-processing steps and are complex to implement in general.
+Others, solve related problems such as the \textit{decider}, where the algorithm only determines if the Fr\'echet distance between curves is below a certain threshold, which does not help in downstream tasks where the exact distance is required, e.g., clustering \citep{bringmann19}.
 Furthermore---and to the best of our knowledge---almost all of the analyses and applications of the continuous Fr\'echet distance between polygonal curves either explicitly or implicitly rely on the Euclidean distance for $\| \cdot \|_\mathcal{S}$ which makes the corresponding pathing in \textit{free-space} a convex optimization problem \citep{alt92,alt95}.
 Extending the results to other metrics, e.g., the great-circle distance, is not straightforward as one quickly looses auxiliary properties such as the convexity.
 
@@ -291,3 +292,4 @@ Furthermore, we conjecture that our algorithms can easily be extended to allow f
 In this paper, we have introduced the Fast Fr\'echet Distance algorithm in Alg.~\ref{alg:fast}, a recursion-free algorithm that calculates the discrete Fr\'echet distance with a linear memory overhead and can be implemented in four lines of code.
 Our algorithm can easily be adopted, e.g., to estimate the distances between batches of polygonal curves and a reference curve in parallel.
 We have shown benchmarks of implementations that efficiently utilize SIMD vector registers on a CPU and the parallelization potentials of a GPGPU.
+Besides a possible application to uncertain curves, we further conjecture that even for sophisticated approaches that, for instance, use heuristics to avoid computing the full (discrete) Fr\'echet distance when not needed, will still benefit from our results as they are probably still bottlenecked by those cases, where the heuristic fails \citep{buchin23,baldus17,buchin17b,duetsch17}.
