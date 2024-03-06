@@ -9,7 +9,7 @@
 project = "fast_frechet"
 copyright = "2024, Nis Meinert"
 author = "Nis Meinert"
-release = "0.1.0"
+release = "1.3.0"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
