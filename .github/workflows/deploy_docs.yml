@@ -21,7 +21,7 @@ jobs:
       artifact_name: fast_frechet-docs-html
 
   deploy:
-    needs: [render-viz]
+    needs: [build-docs]
 
     environment:
       name: github-pages
