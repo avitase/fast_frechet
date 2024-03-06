@@ -44,6 +44,21 @@
         "FFRECHET_TEST_BUILD_TYPE": "Release",
         "FFRECHET_BENCHMARK_BUILD_TYPE": "Release"
       }
+    },
+    {
+      "name": "profile",
+      "inherits": "common",
+      "binaryDir": "${sourceDir}/build/profile",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "FFRECHET_BASELINE_BUILD_TYPE": "RelWithDebInfo",
+        "FFRECHET_VANILLA_BUILD_TYPE": "RelWithDebInfo",
+        "FFRECHET_LINEAR_BUILD_TYPE": "RelWithDebInfo",
+        "FFRECHET_SIMD_BUILD_TYPE": "RelWithDebInfo",
+        "FFRECHET_CUDA_BUILD_TYPE": "RelWithDebInfo",
+        "FFRECHET_TEST_BUILD_TYPE": "Release",
+        "FFRECHET_BENCHMARK_BUILD_TYPE": "ReleaseWithDebInfo"
+      }
     }
   ],
   "buildPresets": [
@@ -57,6 +72,12 @@
       "name": "release",
       "configurePreset": "release",
       "configuration": "Release",
+      "jobs": 16
+    },
+    {
+      "name": "profile",
+      "configurePreset": "profile",
+      "configuration": "RelWithDebInfo",
       "jobs": 16
     }
   ]
