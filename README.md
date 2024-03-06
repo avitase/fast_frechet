@@ -71,6 +71,10 @@ $ cmake --build --preset=debug -t format-check
 $ cmake --build --preset=debug -t format-fix
 ```
 
+## Benchmark results and other visualizations 🎨
+
+We use Jupyter Notebooks to render the visualizations of the results of the benchmarks. You can find them [here][notebooks] alongside others.
+
 ## Python Implementations 🐍
 
 Python implementations of the discrete Fréchet Distance can be found [here][fast_frechet-python].
@@ -81,4 +85,5 @@ Python implementations of the discrete Fréchet Distance can be found [here][fas
 [ffrechet-cuda_toolchain.cmake]: ffrechet-cuda/ffrechet-cuda_toolchain.cmake 
 [google-benchmark]: https://github.com/google/benchmark
 [google-test]: https://github.com/google/googletest
+[notebooks]: https://avitase.github.io/fast_frechet/
 [fast_frechet-python]: https://github.com/avitase/fast_frechet-python
