@@ -37,7 +37,7 @@ jobs:
       run: make html
 
     - name: Upload HTML files
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: ${{ inputs.artifact_name }}
       with:
         name: ${{ inputs.artifact_name }}
