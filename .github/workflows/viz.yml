@@ -16,8 +16,8 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Install texlive
-      run: sudo apt install -y dvipng texlive texlive-latex-extra texlive-fonts-recommended
+    - name: Install texlive and pandoc
+      run: sudo apt install -y dvipng texlive texlive-latex-extra texlive-fonts-recommended pandoc
 
     - name: Install Python
       uses: actions/setup-python@v5
