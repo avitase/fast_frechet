@@ -20,9 +20,9 @@ jobs:
       run: sudo apt install -y dvipng texlive texlive-latex-extra texlive-fonts-recommended
 
     - name: Install Python
-      uses: actions/setup-python@4
+      uses: actions/setup-python@v5
       with:
-        python-version: 3.11
+        python-version: '3.11'
 
     - name: Install dependencies
       run: pip install -r requirements.txt
