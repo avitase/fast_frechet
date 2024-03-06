@@ -21,8 +21,8 @@ namespace
 
 template <std::size_t N>
 [[nodiscard]] stdx::fixed_size_simd<float, N> frechet_distance(
-    std::vector<stdx::fixed_size_simd<float, N>> px,
-    std::vector<stdx::fixed_size_simd<float, N>> py,
+    std::span<const stdx::fixed_size_simd<float, N>> px,
+    std::span<const stdx::fixed_size_simd<float, N>> py,
     std::span<const float> qx,
     std::span<const float> qy,
     std::vector<stdx::fixed_size_simd<float, N>>& v)
