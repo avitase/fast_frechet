@@ -1,0 +1,32 @@
+name: Visualizations
+
+on:
+  push:
+    branches:
+    - baseline
+
+  pull_request:
+    branches:
+    - baseline
+
+jobs:
+  lint:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install texlive
+      run: sudo apt install -y dvipng texlive texlive-latex-extra texlive-fonts-recommended
+
+    - name: Install Python
+      uses: actions/setup-python@4
+      with:
+        python-version: 3.11
+
+    - name: Install dependencies
+      run: pip install -r requirements.txt
+
+    - name: Build HTML
+      working-directory: viz/
+      run: make html
