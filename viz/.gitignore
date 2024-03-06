@@ -1,4 +1,4 @@
 .ipynb_checkpoints/
 venv/
 img/
-_build/
+build/
