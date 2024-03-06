@@ -4,9 +4,6 @@ include(cmake/prelude.cmake)
 
 project(
     ffrechet-data
-    VERSION 0.1.0
-    DESCRIPTION "Synthetic data for the tests and benchmarks"
-    HOMEPAGE_URL "https://github.com/avitase/fast_frechet/tree/main/ffrechet-data"
     LANGUAGES NONE
 )
 

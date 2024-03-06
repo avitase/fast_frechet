@@ -2,9 +2,6 @@ cmake_minimum_required(VERSION 3.14)
 
 project(
     ffrechet-data-printer
-    VERSION 0.1.0
-    DESCRIPTION "Prints test data"
-    HOMEPAGE_URL "https://github.com/avitase/fast_frechet/tree/main/ffrechet-data-printer"
     LANGUAGES CXX
 )
 

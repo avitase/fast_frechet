@@ -2,9 +2,6 @@ cmake_minimum_required(VERSION 3.14)
 
 project(
     ffrechet-benchmark
-    VERSION 0.1.0
-    DESCRIPTION "Benchmarks of Fast Frechet implementations"
-    HOMEPAGE_URL "https://github.com/avitase/fast_frechet/tree/main/ffrechet-benchmark"
     LANGUAGES CXX
 )
 

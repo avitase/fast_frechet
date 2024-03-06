@@ -2,9 +2,6 @@ cmake_minimum_required(VERSION 3.14)
 
 project(
     ffrechet-baseline
-    VERSION 0.1.0
-    DESCRIPTION "Baseline implementation for measuring the performance of the Fast Frechet algorithm"
-    HOMEPAGE_URL "https://github.com/avitase/fast_frechet/tree/main/ffrechet-baseline"
     LANGUAGES CXX
 )
 

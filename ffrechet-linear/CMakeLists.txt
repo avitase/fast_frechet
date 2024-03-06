@@ -2,9 +2,6 @@ cmake_minimum_required(VERSION 3.14)
 
 project(
     ffrechet-linear
-    VERSION 0.1.0
-    DESCRIPTION "Canonical implementation of the discrete Frechet distance algorithm"
-    HOMEPAGE_URL "https://github.com/avitase/fast_frechet/tree/main/ffrechet-linear"
     LANGUAGES CXX
 )
 

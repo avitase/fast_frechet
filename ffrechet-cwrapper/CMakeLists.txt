@@ -4,9 +4,6 @@ include(cmake/prelude.cmake)
 
 project(
     ffrechet-cwrapper
-    VERSION 0.1.0
-    DESCRIPTION "C++ wrapper of the Fast Frechet implementations"
-    HOMEPAGE_URL "https://github.com/avitase/fast_frechet/tree/main/ffrechet-cwrapper"
     LANGUAGES NONE
 )
 

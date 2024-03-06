@@ -2,9 +2,6 @@ cmake_minimum_required(VERSION 3.14)
 
 project(
     ffrechet-test
-    VERSION 0.1.0
-    DESCRIPTION "Tests of Fast Frechet implementations"
-    HOMEPAGE_URL "https://github.com/avitase/fast_frechet/tree/main/ffrechet-test"
     LANGUAGES CXX
 )
 
