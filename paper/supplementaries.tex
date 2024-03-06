@@ -114,6 +114,6 @@ Although similar to the Fr\'echet or DTW distance, this algorithm does not searc
         \includegraphics[width=.8\textwidth]{img/desktop/rel_performance-pP.png}
         \caption{Relative improvement with $N = 2^{10}$.}
     \end{subfigure}
-    \caption{Comparison of four different implementations of the Fast Fr\'echet algorithm on a laptop (CPU: AMD Ryzen Threadripper 3960X, GPU: NVIDIA GeForce RTX 3090 (24\,GB VRAM), CUDA Version: 11.4) using 32-bit floating point numbers. \textit{Vanilla} and \textit{Linear} refer to Alg.~\ref{alg:no_recursion} and \ref{alg:linear}, respectively. The SIMD implementation uses a batch size of $B = 8$ and relies on the AVX2 instruction set. The CUDA implementation uses a grid and block size of 128 and 64, respectively, that was measured to perform best for $N=2^{13}$ and $P=2^{10}$.}
+    \caption{Comparison of four different implementations of the Fast Fr\'echet algorithm on a laptop (CPU: AMD Ryzen Threadripper 3960X, GPU: NVIDIA GeForce RTX 3090 (24\,GB VRAM), CUDA Version: 11.4) using 32-bit floating point numbers. \textit{Vanilla} and \textit{Linear} refer to Alg.~\ref{alg:no_recursion} and \ref{alg:linear}, respectively. The SIMD implementation uses a batch size of $B = 8$ and relies on the AVX2 instruction set. The CUDA implementation uses a grid and block size of 128 and 64, respectively, that was measured to perform best for $N=2^{13}$ and $P=2^{10}$. All variants utilize only a single CPU core.}
     \label{fig:benchmark_desktop}
 \end{figure}
