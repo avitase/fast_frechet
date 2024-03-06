@@ -242,7 +242,7 @@ However, due to the reduced memory requirement and the lack of branching points,
 In case the variance of curve lengths within a batch is not too large, the benefit of evaluating the distance in batches compensates the cost of artificially extending curves and results in an improvement of the overall runtime.
 Otherwise, this effect can be improved by sorting the curves by their respective lengths before assigning them to batches.
 
-We benchmark the effectiveness of such a parallelization scheme by implementing Alg.~\ref{alg:fast} in \texttt{C++} using vectorization via SIMD instructions (CPU) and a CUDA implementation (GPGPU) and compare the performance with implementations of Alg.~\ref{alg:no_recursion} and \ref{alg:linear}.
+We benchmark the effectiveness of such a parallelization scheme by implementing Alg.~\ref{alg:fast} in \texttt{C++} using vectorization via SIMD instructions (CPU) and a CUDA implementation (GPGPU), and compare the performance with implementations of Alg.~\ref{alg:no_recursion} and \ref{alg:linear}.
 Note that we intentionally not pick Alg.~\ref{alg:vanilla} for reference as this variant crashes due to its recursion nature quickly for larger trajectory sizes.
 
 We conduct two experiments:
@@ -276,12 +276,15 @@ In Fig.~\ref{fig:benchmark_desktop} in the Appendix, we show additional results 
         \includegraphics[width=.8\textwidth]{img/laptop/rel_performance-pP.png}
         \caption{Relative improvement with $N = 2^{10}$.}
     \end{subfigure}
-    \caption{Comparison of four different implementations of the Fast Fr\'echet Distance algorithm on a laptop (CPU: i7-11800H, GPU: GeForce RTX 3080 Mobile (16\,GB VRAM), CUDA Version: 12.2) using 32-bit floating point numbers. \textit{Vanilla} and \textit{Linear} refer to Alg.~\ref{alg:no_recursion} and \ref{alg:linear}, respectively. The SIMD implementation uses a batch size of $B = 32$ (twice the size of a 512-bit register in order to improve the instruction level parallelism) and relies on the AVX-512 instruction set. The CUDA implementation uses a grid and block size of 128 and 64, respectively, that was measured to perform best for $N=2^{13}$ and $P=2^{10}$.}
+    \caption{Comparison of four different implementations of the Fast Fr\'echet Distance algorithm on a laptop (CPU: i7-11800H, GPU: GeForce RTX 3080 Mobile (16\,GB VRAM), CUDA Version: 12.2) using 32-bit floating point numbers. \textit{Vanilla} and \textit{Linear} refer to Alg.~\ref{alg:no_recursion} and \ref{alg:linear}, respectively. The SIMD implementation uses a batch size of $B = 32$ (twice the size of a 512-bit register in order to improve the instruction level parallelism) and relies on the AVX-512 instruction set; the baseline implementation uses the same technique to calculate $\sum_{ij} d_{ij}$. The CUDA implementation uses a grid and block size of 128 and 64, respectively, that was measured to perform best for $N=2^{13}$ and $P=2^{10}$.}
     \label{fig:benchmark_laptop}
 \end{figure}
 
-The performance gain between Alg.~\ref{alg:vanilla} and \ref{alg:linear} is small but slightly increases when $P$ get large.
-In contrast, the SIMD variant offers a constant improvement of roughly $19\times$ during the first and even up to $22\times$ during the second experiment.
+Besides the four variants, we further benchmark a baseline implementation that calculates the sum of all entries of the distance matrix $d \in \mathbb{R}^{P \times Q}$ using the very same vectorization techniques as the SIMD variant.
+This gives us a decent approximation of an upper limit for the expected performance for the implementations running on the CPU, i.e., the difference between this baseline and the SIMD variant is the overhead induced by evaluating Eq.~\eqref{eq:dynprogprob} instead of simply summing the elements $d_{ij}$.
+
+From Figs.~\ref{fig:benchmark_laptop} we see that the performance gain between Alg.~\ref{alg:vanilla} and \ref{alg:linear} is small but slightly increases when $P$ gets large.
+In contrast, the SIMD variant comes close to our baseline and offers a constant improvement of roughly $19\times$ during the first and even up to $22\times$ during the second experiment.
 We found that instruction level parallelism and an improved memory locality by packing $B=2 \times 16$ floating point numbers into 512-bit vector registers and using AVX-512 instructions explain this impressive boost.
 Taking into account the large number of available threads of the GPU, the results of the CUDA implementation is less impressive and only outperforms the SIMD algorithm running on a single CPU core for large values of $N$.
 
@@ -293,4 +296,4 @@ Furthermore, we conjecture that our algorithms can easily be extended to allow f
 In this paper, we have introduced the Fast Fr\'echet Distance algorithm in Alg.~\ref{alg:fast}, a recursion-free algorithm that calculates the discrete Fr\'echet distance with a linear memory overhead and can be implemented in four lines of code.
 Our algorithm can easily be adopted, e.g., to estimate the distances between batches of polygonal curves and a reference curve in parallel.
 We have shown benchmarks of implementations that efficiently utilize SIMD vector registers on a CPU and the parallelization potentials of a GPGPU.
-Besides a possible application to uncertain curves, we further conjecture that even for sophisticated approaches that, for instance, use heuristics to avoid computing the full (discrete) Fr\'echet distance when not needed, will still benefit from our results as they are probably still bottlenecked by those cases, where the heuristic fails \citep{buchin23,baldus17,buchin17b,duetsch17}.
+Besides a possible application to uncertain curves, we further conjecture that even for sophisticated approaches that, for instance, use heuristics to avoid computing the full (discrete) Fr\'echet distance when not needed, will still benefit from our results as they are probably still bottlenecked by those cases where the heuristic fails \citep{buchin23,baldus17,buchin17b,duetsch17}.
