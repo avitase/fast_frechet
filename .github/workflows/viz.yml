@@ -1,0 +1,45 @@
+name: Render visualizations
+
+on:
+  # only run on PRs, not on pushes to main
+  # (this is handled by deploy_docs.yml)
+  pull_request:
+
+  workflow_call:
+    inputs:
+      artifact_name:
+        description: "Name of the artifact to upload"
+        required: false
+        type: string
+
+jobs:
+  render-viz:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Install texlive and pandoc
+      run: sudo apt install -y dvipng texlive texlive-latex-extra texlive-fonts-recommended cm-super pandoc
+
+    - name: Install Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      working-directory: viz/
+      run: pip install -r requirements.txt
+
+    - name: Build HTML
+      working-directory: viz/
+      run: make html
+
+    - name: Upload HTML files
+      uses: actions/upload-artifact@v3
+      if: ${{ inputs.artifact_name }}
+      with:
+        name: ${{ inputs.artifact_name }}
+        path: viz/build/html
+        if-no-files-found: error

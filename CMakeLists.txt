@@ -5,6 +5,7 @@ project(ffrechet)
 # ---- Super build ----
 
 set(FFRECHET_DATA_PRINTER_BUILD_TYPE "Release" CACHE STRING "Build type of ffrechet-data-printer")
+set(FFRECHET_BASELINE_BUILD_TYPE "Release" CACHE STRING "Build type of ffrechet-baseline")
 set(FFRECHET_VANILLA_BUILD_TYPE "Release" CACHE STRING "Build type of ffrechet-vanilla")
 set(FFRECHET_LINEAR_BUILD_TYPE "Release" CACHE STRING "Build type of ffrechet-linear")
 set(FFRECHET_SIMD_BUILD_TYPE "Release" CACHE STRING "Build type of ffrechet-simd")
@@ -32,6 +33,17 @@ ExternalProject_Add(ffrechet-data-printer
         -DCMAKE_TOOLCHAIN_FILE=${CMAKE_CURRENT_LIST_DIR}/ffrechet-data-printer/ffrechet-data-printer_toolchain.cmake
         -DCMAKE_PREFIX_PATH:PATH=<INSTALL_DIR>
         -DCMAKE_BUILD_TYPE=${FFRECHET_DATA_PRINTER_BUILD_TYPE}
+)
+
+ExternalProject_Add(ffrechet-baseline
+    SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/ffrechet-baseline
+    INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/install
+    CMAKE_ARGS
+        -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+        -DCMAKE_TOOLCHAIN_FILE=${CMAKE_CURRENT_LIST_DIR}/ffrechet-baseline/ffrechet-baseline_toolchain.cmake
+        -DCMAKE_BUILD_TYPE=${FFRECHET_BASELINE_BUILD_TYPE}
+        -DFFRECHET_SIMD_LANE_MULTIPLIER=${FFRECHET_SIMD_LANE_MULTIPLIER}
+        -DBUILD_SHARED_LIBS=ON
 )
 
 ExternalProject_Add(ffrechet-vanilla
@@ -76,7 +88,7 @@ ExternalProject_Add(ffrechet-cuda
 )
 
 ExternalProject_Add(ffrechet-cwrapper
-    DEPENDS ffrechet-data ffrechet-vanilla ffrechet-linear ffrechet-simd ffrechet-cuda
+    DEPENDS ffrechet-data ffrechet-baseline ffrechet-vanilla ffrechet-linear ffrechet-simd ffrechet-cuda
     SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/ffrechet-cwrapper
     INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/install
     CMAKE_ARGS

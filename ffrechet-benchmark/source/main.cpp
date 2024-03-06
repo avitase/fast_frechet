@@ -38,16 +38,16 @@ namespace
 }
 } // namespace
 
-static void baseline(benchmark::State& state)
+static void ffrechet_baseline(benchmark::State& state)
 {
     const auto& [p, q] = ::generate_trajectories(state);
 
     // warm-up
-    benchmark::DoNotOptimize(::fast_frechet::vanilla::frechet_distance(p, q));
+    benchmark::DoNotOptimize(::fast_frechet::baseline::frechet_distance(p, q));
 
     for (auto _ : state) // NOLINT
     {
-        benchmark::DoNotOptimize(::fast_frechet::vanilla::frechet_distance(p, q));
+        benchmark::DoNotOptimize(::fast_frechet::baseline::frechet_distance(p, q));
         benchmark::ClobberMemory();
     }
 }
@@ -119,6 +119,14 @@ BENCHMARK(ffrechet_cuda)
         ::benchmark::CreateRange(32, 256, 2),
     });
 
+BENCHMARK(ffrechet_baseline)
+    ->Name("baseline-P")
+    ->ArgsProduct({
+        {1U << 10U},
+        ::benchmark::CreateRange(1U << 5U, 1U << 14U, 2),
+        {100},
+    });
+
 BENCHMARK(ffrechet_vanilla)
     ->Name("vanilla-P")
     ->ArgsProduct({
@@ -151,6 +159,14 @@ BENCHMARK(ffrechet_cuda)
         {100},
         {128},
         {64},
+    });
+
+BENCHMARK(ffrechet_baseline)
+    ->Name("baseline-N")
+    ->ArgsProduct({
+        ::benchmark::CreateRange(1U << 5U, 1U << 14U, 2),
+        {1U << 10U},
+        {100},
     });
 
 BENCHMARK(ffrechet_vanilla)

@@ -1,0 +1,48 @@
+name: Deploy docs to GitHub Pages
+
+on:
+  push:
+    branches:
+    - main
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build-docs:
+    uses: ./.github/workflows/viz.yml
+    with:
+      artifact_name: fast_frechet-docs-html
+
+  deploy:
+    needs: [build-docs]
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    runs-on: ubuntu-22.04
+    steps:
+    - name: Setup Pages
+      uses: actions/configure-pages@v4
+
+    - name: Download HTML doc artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: fast_frechet-docs-html
+        path: viz_build
+
+    - name: Upload pages artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: viz_build
+
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
