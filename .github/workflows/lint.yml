@@ -18,5 +18,13 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Lint
+    - name: Lint C++
       run: cmake -D FORMAT_COMMAND=clang-format-14 -P cmake/lint.cmake
+    
+    - name: Line Jupyter Notebooks
+      uses: psf/black@stable
+      with:
+        options: "--check --verbose"
+        src: "./viz"
+        jupyter: true
+
