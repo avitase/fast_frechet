@@ -10,7 +10,7 @@ on:
     - baseline
 
 jobs:
-  lint:
+  viz:
     runs-on: ubuntu-22.04
 
     steps:
@@ -25,6 +25,7 @@ jobs:
         python-version: '3.11'
 
     - name: Install dependencies
+      working-directory: viz/
       run: pip install -r requirements.txt
 
     - name: Build HTML
