@@ -1,5 +1,7 @@
 set(
     FORMAT_PATTERNS
+    ffrechet-baseline/include/*.hpp
+    ffrechet-baseline/source/*.cpp ffrechet-baseline/source/*.hpp
     ffrechet-benchmark/source/*.cpp ffrechet-benchmark/source/*.hpp
     ffrechet-cuda/include/*.hpp
     ffrechet-cuda/source/*.cpp ffrechet-cuda/*.cu ffrechet-cuda/source/*.hpp

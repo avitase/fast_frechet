@@ -14,6 +14,7 @@ add_executable(ffrechet-test source/main.cpp)
 
 find_package(GTest REQUIRED)
 find_package(ffrechet-data REQUIRED)
+find_package(ffrechet-baseline REQUIRED)
 find_package(ffrechet-vanilla REQUIRED)
 find_package(ffrechet-linear REQUIRED)
 find_package(ffrechet-simd REQUIRED)
@@ -26,6 +27,7 @@ target_link_libraries(
     GTest::gtest_main
     PRIVATE
     ffrechet-data::ffrechet-data
+    ffrechet-baseline::ffrechet-baseline
     ffrechet-vanilla::ffrechet-vanilla
     ffrechet-linear::ffrechet-linear
     ffrechet-simd::ffrechet-simd

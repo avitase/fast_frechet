@@ -18,17 +18,6 @@
       }
     },
     {
-      "name": "sanitize",
-      "generator": "Unix Makefiles",
-      "binaryDir": "${sourceDir}/build/sanitize",
-      "inherits": ["dev-mode", "compiler-flags"],
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Sanitize",
-        "CMAKE_PREFIX_PATH": "../build/debug/install",
-        "CMAKE_CXX_FLAGS_SANITIZE": "-U_FORTIFY_SOURCE -O2 -g -fsanitize=address,undefined -fno-omit-frame-pointer -fno-common"
-      }
-    },
-    {
       "name": "release",
       "generator": "Unix Makefiles",
       "binaryDir": "${sourceDir}/build/release",
@@ -36,6 +25,16 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_PREFIX_PATH": "../build/release/install"
+      }
+    },
+    {
+      "name": "profile",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build/profile",
+      "inherits": "compiler-flags",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "CMAKE_PREFIX_PATH": "../build/profile/install"
       }
     }
   ],
@@ -47,15 +46,15 @@
       "jobs": 16
     },
     {
-      "name": "sanitize",
-      "configurePreset": "sanitize",
-      "configuration": "Sanitize",
-      "jobs": 16
-    },
-    {
       "name": "release",
       "configurePreset": "release",
       "configuration": "Release",
+      "jobs": 16
+    },
+    {
+      "name": "profile",
+      "configurePreset": "profile",
+      "configuration": "RelWithDebInfo",
       "jobs": 16
     }
   ]

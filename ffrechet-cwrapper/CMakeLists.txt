@@ -27,6 +27,7 @@ target_include_directories(
 )
 
 find_package(ffrechet-data REQUIRED)
+find_package(ffrechet-baseline REQUIRED)
 find_package(ffrechet-vanilla REQUIRED)
 find_package(ffrechet-linear REQUIRED)
 find_package(ffrechet-simd REQUIRED)
@@ -36,6 +37,7 @@ target_link_libraries(
     ffrechet-cwrapper_ffrechet-cwrapper
     INTERFACE
     ffrechet-data::ffrechet-data
+    ffrechet-baseline::ffrechet-baseline
     ffrechet-vanilla::ffrechet-vanilla
     ffrechet-linear::ffrechet-linear
     ffrechet-simd::ffrechet-simd

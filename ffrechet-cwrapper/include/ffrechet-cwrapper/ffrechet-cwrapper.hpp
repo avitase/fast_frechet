@@ -3,11 +3,36 @@
 #include <cassert>
 #include <vector>
 
+#include <ffrechet-baseline/ffrechet-baseline.hpp>
 #include <ffrechet-cuda/ffrechet-cuda.hpp>
 #include <ffrechet-data/ffrechet-data.hpp>
 #include <ffrechet-linear/ffrechet-linear.hpp>
 #include <ffrechet-simd/ffrechet-simd.hpp>
 #include <ffrechet-vanilla/ffrechet-vanilla.hpp>
+
+namespace fast_frechet::baseline
+{
+template <typename T>
+[[nodiscard]] std::vector<T> frechet_distance(
+    const std::vector<::fast_frechet::data::Trajectory<T>>& p,
+    const ::fast_frechet::data::Trajectory<T>& q)
+{
+    const ::fast_frechet::data::TrajectoriesView view{p};
+
+    const unsigned N = static_cast<unsigned>(view.n.size());
+    assert(view.x.size() == N);
+    assert(view.y.size() == N);
+
+    const unsigned Q = static_cast<unsigned>(q.x.size());
+    assert(q.y.size() == Q);
+
+    std::vector<T> distance(view.size());
+    baseline_frechet_distance(
+        view.x.data(), view.y.data(), view.n.data(), N, q.x.data(), q.y.data(), Q, distance.data());
+
+    return distance;
+}
+} // namespace fast_frechet::baseline
 
 namespace fast_frechet::vanilla
 {

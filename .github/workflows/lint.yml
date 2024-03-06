@@ -1,0 +1,30 @@
+name: Linting
+
+on:
+  push:
+    branches:
+    - main
+    - dev
+
+  pull_request:
+    branches:
+    - main
+    - dev
+
+jobs:
+  lint:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Lint C++
+      run: cmake -D FORMAT_COMMAND=clang-format-14 -P cmake/lint.cmake
+    
+    - name: Lint Jupyter Notebooks
+      uses: psf/black@stable
+      with:
+        options: "--check --verbose"
+        src: "./viz"
+        jupyter: true
+
