@@ -4,6 +4,7 @@ include(cmake/prelude.cmake)
 
 project(
     ffrechet-cwrapper
+    VERSION 1.0.0
     LANGUAGES NONE
 )
 

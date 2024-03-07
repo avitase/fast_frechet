@@ -4,6 +4,7 @@ include(cmake/prelude.cmake)
 
 project(
     ffrechet-data
+    VERSION 1.0.0
     LANGUAGES NONE
 )
 
