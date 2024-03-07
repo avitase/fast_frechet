@@ -24,12 +24,6 @@ target_link_libraries(
     PUBLIC
     GTest::gtest_main
     PRIVATE
-    ffrechet-data::ffrechet-data
-    ffrechet-baseline::ffrechet-baseline
-    ffrechet-vanilla::ffrechet-vanilla
-    ffrechet-linear::ffrechet-linear
-    ffrechet-simd::ffrechet-simd
-    ffrechet-cuda::ffrechet-cuda
     ffrechet-cwrapper::ffrechet-cwrapper
 )
 
