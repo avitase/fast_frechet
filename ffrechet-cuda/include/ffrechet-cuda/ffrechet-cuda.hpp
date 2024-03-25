@@ -2,17 +2,11 @@
 
 #include "ffrechet-cuda/ffrechet-cuda_export.hpp"
 
-namespace fast_frechet
-{
-namespace cuda
-{
-struct FFRECHET_CUDA_EXPORT KernelConfig
+struct FFRECHET_CUDA_EXPORT CUDAKernelConfig
 {
     unsigned grid_size;
     unsigned block_size;
 };
-} // namespace cuda
-} // namespace fast_frechet
 
 extern "C"
 {
@@ -24,5 +18,5 @@ extern "C"
                                                     const float* qy,
                                                     unsigned Q,
                                                     float* d,
-                                                    const ::fast_frechet::cuda::KernelConfig&);
+                                                    CUDAKernelConfig);
 }

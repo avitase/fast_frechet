@@ -108,6 +108,8 @@ template <typename T>
 
 namespace fast_frechet::cuda
 {
+using KernelConfig = CUDAKernelConfig;
+
 template <typename T>
 [[nodiscard]] std::vector<T> frechet_distance(
     const std::vector<::fast_frechet::data::Trajectory<T>>& p,

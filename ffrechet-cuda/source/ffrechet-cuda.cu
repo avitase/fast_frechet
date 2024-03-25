@@ -71,7 +71,7 @@ void cuda_frechet_distance(const float* const* px,
                            const float* qy,
                            unsigned Q,
                            float* d,
-                           const ::fast_frechet::cuda::KernelConfig& cfg)
+                           CUDAKernelConfig cfg)
 {
     using ::fast_frechet::cuda::cuda_check;
 
