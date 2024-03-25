@@ -39,7 +39,9 @@ $ cmake --build --preset=release
 
 If you want to run the benchmark, type:
 ```bash
-$ ./build/release/install/bin/ffrechet-benchmark --benchmark_out_format=json --benchmark_out=benchmark.json
+$ ./build/release/install/bin/ffrechet-benchmark \
+--benchmark_out_format=json \
+--benchmark_out=benchmark.json
 ```
 this will run the benchmark and store the results in `benchmark.json`.
 Remember to enable the performance mode on your CPU before running the benchmark, e.g., via
