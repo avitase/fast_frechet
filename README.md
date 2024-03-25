@@ -22,7 +22,8 @@ You can customize the compiler versions by editing the respective toolchain file
 
 First, make sure that you have checked out the dependencies ([google-benchmark][google-benchmark] and [google-test][google-test]) by running
 ```bash
-$ git submodule --init
+$ git submodule init
+$ git submodule update
 ```
 
 Then, you can customize the build options in `CMakeUserPresets.json` or simply copy the default one from [`CMakeUserPresets.json.EXAMPLE`](CMakeUserPresets.json.EXAMPLE):
