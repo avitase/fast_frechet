@@ -1,4 +1,5 @@
 # Fast Discrete Fréchet Distance 
+[![arXiv](https://img.shields.io/badge/arXiv-2404.05708-b31b1b.svg)](https://arxiv.org/abs/2404.05708)
 
 This is a collection of different C++ implementations for calculating the discrete [Fréchet distance](https://en.wikipedia.org/wiki/Fr%C3%A9chet_distance) between two polygonal curves:
 
