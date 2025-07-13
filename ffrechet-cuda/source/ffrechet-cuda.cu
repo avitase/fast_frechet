@@ -10,7 +10,7 @@ __device__ static float metric(float dx, float dy)
 
 __global__ static void kernel(const float* px,
                               const float* py,
-                              const unsigned* P,
+                              const unsigned P,
                               const unsigned N,
                               const float* qx,
                               const float* qy,
@@ -27,7 +27,7 @@ __global__ static void kernel(const float* px,
             buffer[j * N + idx] = acc;
         }
 
-        for (unsigned i = 1; i < P[idx]; i++)
+        for (unsigned i = 1; i < P; i++)
         {
             for (unsigned j = Q - 1; j > 0; j--)
             {
@@ -101,10 +101,6 @@ void cuda_frechet_distance(const float* const* px,
     cuda_check(
         cudaMemcpy(py_d, py_flat.data(), py_flat.size() * sizeof(float), cudaMemcpyHostToDevice));
 
-    unsigned* P_d;
-    cuda_check(cudaMalloc(&P_d, N * sizeof(unsigned)));
-    cuda_check(cudaMemcpy(P_d, P, N * sizeof(unsigned), cudaMemcpyHostToDevice));
-
     float* qx_d;
     cuda_check(cudaMalloc(&qx_d, Q * sizeof(float)));
     cuda_check(cudaMemcpy(qx_d, qx, Q * sizeof(float), cudaMemcpyHostToDevice));
@@ -119,7 +115,7 @@ void cuda_frechet_distance(const float* const* px,
     float* res_d;
     cuda_check(cudaMalloc(&res_d, N * sizeof(float)));
 
-    kernel<<<cfg.grid_size, cfg.block_size>>>(px_d, py_d, P_d, N, qx_d, qy_d, Q, buffer_d, res_d);
+    kernel<<<cfg.grid_size, cfg.block_size>>>(px_d, py_d, P_MAX, N, qx_d, qy_d, Q, buffer_d, res_d);
     cuda_check();
     cuda_check(cudaDeviceSynchronize());
 
